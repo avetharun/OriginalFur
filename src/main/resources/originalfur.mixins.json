@@ -4,8 +4,10 @@
   "package": "com.studiopulsar.feintha.originalfur.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "OriginsRegistryMixin"
   ],
   "client": [
+    "PlayerEntityRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1
