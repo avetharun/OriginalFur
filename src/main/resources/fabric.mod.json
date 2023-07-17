@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "originalfur",
+  "version": "${version}",
+  "name": "OriginalFur",
+  "description": "",
+  "authors": [],
+  "contact": {
+    "repo": "https://github.com/avetharun/FabricOriginalFur"
+  },
+  "license": "unlicense",
+  "icon": "assets/originalfur/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "com.studiopulsar.feintha.originalfur.client.OriginalFurClient"
+    ],
+    "main": [
+      "com.studiopulsar.feintha.originalfur.OriginalFur"
+    ]
+  },
+  "mixins": [
+    "originalfur.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
