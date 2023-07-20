@@ -14,17 +14,8 @@ repositories {
     // for more information about repositories.
 
     maven { url 'https://dl.cloudsmith.io/public/azuredoom-mods/azurelib/maven/' }
-    exclusiveContent {
-        forRepository {
-            maven {
-                name = "Modrinth"
-                url = "https://api.modrinth.com/maven"
-            }
-        }
-        filter {
-            includeGroup "maven.modrinth"
-        }
-    }
+    maven { url 'https://jitpack.io' }
+    maven { url 'https://api.modrinth.com/maven' }
 }
 
 dependencies {
@@ -38,8 +29,21 @@ dependencies {
 
     modImplementation "maven.modrinth:origins:OdNHB7Bh"
     modImplementation "maven.modrinth:azurelib:D0bLIbTK"
-    modCompileOnly "maven.modrinth:dark-waters:AQUD77Sr"
-
+    modImplementation "maven.modrinth:cardinal-components-api:HykM2Qyv"
+    modImplementation(files("libs/Apoli-1.20.1-2.9.0.jar"))
+    modCompileOnly(files(
+            "libs/cardinal-components-base-5.2.1.jar",
+            "libs/cardinal-components-block-5.2.1.jar",
+            "libs/cardinal-components-chunk-5.2.1.jar",
+            "libs/cardinal-components-entity-5.2.1.jar",
+            "libs/cardinal-components-item-5.2.1.jar",
+            "libs/cardinal-components-level-5.2.1.jar",
+            "libs/cardinal-components-scoreboard-5.2.1.jar",
+            "libs/cardinal-components-world-5.2.1.jar",
+            "libs/calio-v1.11.0.jar",
+            "libs/mixinextras-fabric-0.2.0-beta.8.jar"
+    ))
+    annotationProcessor(files("libs/mixinextras-fabric-0.2.0-beta.8.jar"))
 }
 
 processResources {

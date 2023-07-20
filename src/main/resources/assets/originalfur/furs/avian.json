@@ -1,0 +1,5 @@
+{
+  "model": "originalfur:geo/avian.geo.json",
+  "texture": "originalfur:textures/avian.png",
+  "animation": "originalfur:animations/avian.animation.json"
+}

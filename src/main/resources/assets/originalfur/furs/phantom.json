@@ -1,0 +1,7 @@
+{
+  "model": "originalfur:geo/phantom.geo.json",
+  "texture": "originalfur:textures/phantom.png",
+  "animation": "originalfur:animations/phantom.animation.json",
+  "playerInvisible": true,
+  "hurtSound": "entity.phantom.hurt"
+}
