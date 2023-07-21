@@ -76,7 +76,7 @@
 					]
 				},
 				{
-					"name": "back_feather_0",
+					"name": "back_feather_0_elytra_hides",
 					"parent": "bipedBody",
 					"pivot": [0, 24, -2],
 					"cubes": [
@@ -93,7 +93,7 @@
 					]
 				},
 				{
-					"name": "back_feather_1",
+					"name": "back_feather_1_elytra_hides",
 					"parent": "bipedBody",
 					"pivot": [0, 24, -2],
 					"cubes": [
@@ -113,7 +113,7 @@
 					"name": "bipedLeftArm",
 					"pivot": [-5, 23, 0],
 					"cubes": [
-						{"origin": [-7, 14, -1], "size": [2, 10, 2], "uv": [9, 8]}
+						{"origin": [-6.5, 12, -1], "size": [2, 12, 2], "uv": [9, 8]}
 					]
 				},
 				{
@@ -134,7 +134,7 @@
 					"name": "bipedRightArm",
 					"pivot": [5, 23, 0],
 					"cubes": [
-						{"origin": [5, 14, -1], "size": [2, 10, 2], "uv": [9, 8], "mirror": true}
+						{"origin": [4.5, 12, -1], "size": [2, 12, 2], "uv": [9, 8], "mirror": true}
 					]
 				}
 			]

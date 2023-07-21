@@ -9,6 +9,7 @@
   ],
   "client": [
     "PlayerEntityMixin",
+    "PlayerEntityMixin$ChangeElytraTextureMixin",
     "PlayerEntityRendererMixin",
     "PlayerEntityRendererMixin$LivingEntityRendererMixin$HidePlayerModelIfNeeded",
     "PlayerEntityRendererMixin$PlayerEntityModel$RootModel$Mixin"

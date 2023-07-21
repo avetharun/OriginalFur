@@ -4,10 +4,13 @@ import com.google.gson.JsonObject;
 import mod.azure.azurelib.cache.object.*;
 import mod.azure.azurelib.model.GeoModel;
 import mod.azure.azurelib.renderer.GeoObjectRenderer;
+import mod.azure.azurelib.renderer.layer.AutoGlowingGeoLayer;
+import mod.azure.azurelib.renderer.layer.GeoRenderLayer;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.minecraft.client.model.ModelPart;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
@@ -20,6 +23,7 @@ import java.util.LinkedHashMap;
 
 public class OriginalFurClient implements ClientModInitializer {
     public static class OriginFur extends GeoObjectRenderer<OriginFurAnimatable> {
+
         public void setPlayer(PlayerEntity e) {
             this.animatable.setPlayer(e);
         }
@@ -27,7 +31,25 @@ public class OriginalFurClient implements ClientModInitializer {
         public OriginFur(JsonObject json) {
             super(new OriginFurModel(json));
             this.animatable = new OriginFurAnimatable();
+//            this.addRenderLayer(new AutoGlowingGeoLayer<>(this) {
+//                @Override
+//                public GeoModel<OriginFurAnimatable> getGeoModel() {
+//                    return OriginFur.this.getGeoModel();
+//                }
+//
+//                @Override
+//                protected RenderLayer getRenderType(OriginFurAnimatable animatable) {
+//                    return RenderLayer.getEntityCutout(getTextureResource(animatable));
+//                }
+//
+//                @Override
+//                protected Identifier getTextureResource(OriginFurAnimatable animatable) {
+//                    OriginFurModel gM = (OriginFurModel) OriginFur.this.getGeoModel();
+//                    return gM.getFullbrightTextureResource(animatable);
+//                }
+//            });
         }
+
 
     }
 

@@ -4,6 +4,8 @@ import com.google.gson.JsonObject;
 import mod.azure.azurelib.cache.object.GeoBone;
 import mod.azure.azurelib.model.GeoModel;
 import net.minecraft.client.model.ModelPart;
+import net.minecraft.client.render.entity.feature.ElytraFeatureRenderer;
+import net.minecraft.client.render.entity.model.ElytraEntityModel;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 import net.minecraft.util.math.Vec3d;
@@ -123,6 +125,16 @@ public class OriginFurModel extends GeoModel<OriginFurAnimatable> {
     public Identifier getTextureResource(OriginFurAnimatable geoAnimatable) {
         var id = Identifier.tryParse(JsonHelper.getString(json, "texture", "originalfur:textures/missing.png"));
         return id;
+    }
+    public Identifier getFullbrightTextureResource(OriginFurAnimatable geoAnimatable) {
+        var id = Identifier.tryParse(JsonHelper.getString(json, "fullbrightTexture", "originalfur:textures/missing.png"));
+        return id;
+    }
+    public boolean hasCustomElytraTexture() {
+        return json.has("elytraTexture");
+    }
+    public Identifier getElytraTexture() {
+        return Identifier.tryParse(JsonHelper.getString(json, "elytraTexture", "textures/entity/elytra.png"));
     }
     public Identifier getHurtSoundResource() {
         return Identifier.tryParse(JsonHelper.getString(json, "hurtSound", "null"));

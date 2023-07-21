@@ -52,6 +52,7 @@ import java.util.List;
 
 @Mixin(PlayerEntityRenderer.class)
 public class PlayerEntityRendererMixin {
+    
     @Mixin(PlayerEntityModel.class)
     public static abstract class PlayerEntityModel$RootModel$Mixin implements ModelRootAccessor, IPlayerEntityMixins{
         @Shadow @Final private boolean thinArms;
