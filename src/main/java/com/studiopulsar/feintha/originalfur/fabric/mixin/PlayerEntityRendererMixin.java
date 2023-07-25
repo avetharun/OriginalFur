@@ -1,6 +1,7 @@
 package com.studiopulsar.feintha.originalfur.fabric.mixin;
 
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.studiopulsar.feintha.originalfur.fabric.IPlayerEntityMixins;
 import com.studiopulsar.feintha.originalfur.fabric.ModelRootAccessor;
 import com.studiopulsar.feintha.originalfur.fabric.client.FurRenderFeature;
@@ -9,6 +10,8 @@ import com.studiopulsar.feintha.originalfur.fabric.client.OriginalFurClient;
 import io.github.apace100.origins.component.PlayerOriginComponent;
 import io.github.apace100.origins.origin.OriginLayers;
 import io.github.apace100.origins.registry.ModComponents;
+import net.coderbot.iris.Iris;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
@@ -36,11 +39,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 @Pseudo
-@Mixin(PlayerEntityRenderer.class)
+@Mixin(value = PlayerEntityRenderer.class, priority = 99999)
 public class PlayerEntityRendererMixin {
 
     @Pseudo
-    @Mixin(PlayerEntityModel.class)
+    @Mixin(value=PlayerEntityModel.class, priority = 99999)
     public static abstract class PlayerEntityModel$RootModel$Mixin implements ModelRootAccessor, IPlayerEntityMixins{
         @Shadow @Final private boolean thinArms;
 
@@ -101,7 +104,7 @@ public class PlayerEntityRendererMixin {
     }
 
     @Pseudo
-    @Mixin(LivingEntityRenderer.class)
+    @Mixin(value = LivingEntityRenderer.class, priority = 99999)
     public static abstract class LivingEntityRendererMixin$HidePlayerModelIfNeeded <T extends LivingEntity, M extends EntityModel<T>> implements IPlayerEntityMixins {
         @Shadow @Final protected List<FeatureRenderer<T, M>> features;
 
@@ -134,7 +137,7 @@ public class PlayerEntityRendererMixin {
             return isInvisible;
         }
 
-        @Final @Inject(method="render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
+        @Inject(method="render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
                 at=@At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/model/EntityModel;render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumer;IIFFFF)V",
                 shift = At.Shift.BEFORE))
         private void renderPreProcessMixin(T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci){
@@ -177,7 +180,7 @@ public class PlayerEntityRendererMixin {
                 }
             }
         }
-        @Final @Inject(method="render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
+        @Inject(method="render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
                 at=@At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/model/EntityModel;render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumer;IIFFFF)V",
                         shift = At.Shift.AFTER))
         private void renderPostProcessMixin(T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci){
@@ -185,7 +188,7 @@ public class PlayerEntityRendererMixin {
                 matrixStack.translate(0,-9999,0);
             }
         }
-        @Final @Inject(method="render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
+        @Inject(method="render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
                 at=@At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/model/EntityModel;render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumer;IIFFFF)V",
                         shift = At.Shift.AFTER))
         private void renderOverlayTexture(T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci){
@@ -204,11 +207,15 @@ public class PlayerEntityRendererMixin {
                     OriginFurModel m_Model = (OriginFurModel) opt.getGeoModel();
                     var overlayTexture = m_Model.getOverlayTexture(model.originalFur$isSlim());
                     var emissiveTexture = m_Model.getEmissiveTexture(model.originalFur$isSlim());
-
                     boolean bl = this.isVisible(livingEntity);
                     boolean bl2 = !bl && !livingEntity.isInvisibleTo(MinecraftClient.getInstance().player);
                     if ( overlayTexture != null) {
-                        RenderLayer l = RenderLayer.getEntityCutout(overlayTexture);
+                        RenderLayer l = null;
+                        if (OriginalFurClient.isRenderingInWorld && FabricLoader.getInstance().isModLoaded("iris")) {
+                            l = RenderLayer.getEntityCutoutNoCullZOffset(overlayTexture);
+                        } else {
+                            l = RenderLayer.getEntityCutout(overlayTexture);
+                        }
                         this.model.render(matrixStack, vertexConsumerProvider.getBuffer(l), i, p, 1, 1, 1, bl2 ? 0.15F : 1.0F);
                     }
                     if ( emissiveTexture != null) {

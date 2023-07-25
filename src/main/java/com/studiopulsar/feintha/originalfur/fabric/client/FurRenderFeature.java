@@ -8,14 +8,17 @@ import io.github.apace100.origins.component.PlayerOriginComponent;
 import io.github.apace100.origins.origin.Origin;
 import io.github.apace100.origins.origin.OriginLayers;
 import io.github.apace100.origins.registry.ModComponents;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
+import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.PlayerEntityRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRendererContext;
 import net.minecraft.client.render.entity.model.BipedEntityModel;
+import net.minecraft.client.render.entity.model.PlayerEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
@@ -24,10 +27,16 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import org.joml.Quaternionf;
+import org.spongepowered.asm.mixin.Unique;
 
 public class FurRenderFeature <T extends LivingEntity, M extends BipedEntityModel<T>, A extends BipedEntityModel<T>> extends FeatureRenderer<T, M> {
     public FurRenderFeature(FeatureRendererContext<T, M> context) {
         super(context);
+    }
+
+    @Unique
+    private int getOverlayMixin(LivingEntity entity, float whiteOverlayProgress) {
+        return OverlayTexture.packUv(OverlayTexture.getU(whiteOverlayProgress), OverlayTexture.getV(entity.hurtTime > 0 || entity.deathTime > 0));
     }
 
     @Override
@@ -56,7 +65,6 @@ public class FurRenderFeature <T extends LivingEntity, M extends BipedEntityMode
 //            if (fur == null) {return;}
             var eR = (PlayerEntityRenderer)MinecraftClient.getInstance().getEntityRenderDispatcher().getRenderer(abstractClientPlayerEntity);
             var eRA = (IPlayerEntityMixins) eR;
-
             var acc = (ModelRootAccessor)eR.getModel();
             assert fur != null;
             var a = fur.getAnimatable();
@@ -139,6 +147,7 @@ public class FurRenderFeature <T extends LivingEntity, M extends BipedEntityMode
                 m.popScl("bipedLeftLeg");
                 m.popScl("bipedRightLeg");
                 matrixStack.pop();
+
             }
         };
         MinecraftClient.getInstance().getProfiler().pop();
