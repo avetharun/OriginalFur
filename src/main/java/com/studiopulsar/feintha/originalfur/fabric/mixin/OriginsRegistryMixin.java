@@ -1,16 +1,16 @@
-package com.studiopulsar.feintha.originalfur.mixin;
+package com.studiopulsar.feintha.originalfur.fabric.mixin;
 
 import com.google.gson.JsonParser;
-import com.studiopulsar.feintha.originalfur.OriginEvents;
-import com.studiopulsar.feintha.originalfur.client.OriginalFurClient;
+import com.studiopulsar.feintha.originalfur.fabric.OriginEvents;
+import com.studiopulsar.feintha.originalfur.fabric.client.OriginalFurClient;
 import io.github.apace100.calio.data.SerializableData;
-import io.github.apace100.origins.networking.ModPacketsC2S;
 import io.github.apace100.origins.networking.ModPacketsS2C;
 import io.github.apace100.origins.origin.Origin;
 import io.github.apace100.origins.origin.OriginRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -19,6 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.io.IOException;
 
+@Pseudo
 @Mixin(OriginRegistry.class)
 public class OriginsRegistryMixin {
 

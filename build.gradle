@@ -1,6 +1,7 @@
 plugins {
     id 'fabric-loom' version '1.2-SNAPSHOT'
     id 'maven-publish'
+//    id 'io.github.juuxel.loom-quiltflower' version '1.8.+' // For loom 0.8-0.9, 0.11+
 }
 
 version = project.mod_version
@@ -16,16 +17,25 @@ repositories {
     maven { url 'https://dl.cloudsmith.io/public/azuredoom-mods/azurelib/maven/' }
     maven { url 'https://jitpack.io' }
     maven { url 'https://api.modrinth.com/maven' }
+    maven {
+        name 'Quilt'
+        url 'https://maven.quiltmc.org/repository/release'
+    }
 }
 
 dependencies {
     // To change the versions see the gradle.properties file
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+//    mappings "org.quiltmc:quilt-mappings:${project.minecraft_version}+build.${project.quilt_mappings}:intermediary-v2"
+    // modImplementation "org.quiltmc:quilt-loader:${project.quilt_loader_version}"
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    // Quilt API
+//    modImplementation "org.quiltmc:qsl:${project.qsl_version}+${project.minecraft_version}"
+//    modImplementation "org.quiltmc.quilted-fabric-api:quilted-fabric-api:${project.quilted_fabric_api_version}-${project.minecraft_version}"
 
     modImplementation "maven.modrinth:origins:OdNHB7Bh"
     modImplementation "maven.modrinth:azurelib:D0bLIbTK"

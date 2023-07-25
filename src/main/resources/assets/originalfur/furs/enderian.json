@@ -1,0 +1,9 @@
+{
+  "model": "originalfur:geo/enderian.geo.json",
+  "texture": "originalfur:textures/enderian.png",
+  "overlay": "originalfur:textures/enderian_skin.png",
+  "rendering_offsets": {
+    "left": [0,0.3,0],
+    "right": [0,0.3,0]
+  }
+}

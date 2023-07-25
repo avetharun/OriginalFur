@@ -1,5 +1,4 @@
 {
-  "model": "originalfur:geo/arachnid.geo.json",
-  "texture": "originalfur:textures/arachnid/arachnid.png",
-  "fullbrightTexture" : "originalfur:textures/arachnid/arachnid_eyes.png"
+  "emissive_overlay": "originalfur:textures/arachnid/arachnid_eyes.png",
+  "overlay": "originalfur:textures/arachnid/arachnid.png"
 }

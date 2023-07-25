@@ -1,4 +1,4 @@
-package com.studiopulsar.feintha.originalfur;
+package com.studiopulsar.feintha.originalfur.fabric;
 
 import io.github.apace100.origins.networking.ModPackets;
 import io.github.apace100.origins.origin.Origin;

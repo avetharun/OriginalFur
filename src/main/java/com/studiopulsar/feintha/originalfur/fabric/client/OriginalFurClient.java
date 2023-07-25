@@ -1,24 +1,21 @@
-package com.studiopulsar.feintha.originalfur.client;
+package com.studiopulsar.feintha.originalfur.fabric.client;
 
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.studiopulsar.feintha.originalfur.OriginFurAnimatable;
+import com.studiopulsar.feintha.originalfur.fabric.OriginFurModel;
 import mod.azure.azurelib.cache.object.*;
-import mod.azure.azurelib.model.GeoModel;
 import mod.azure.azurelib.renderer.GeoObjectRenderer;
-import mod.azure.azurelib.renderer.layer.AutoGlowingGeoLayer;
-import mod.azure.azurelib.renderer.layer.GeoRenderLayer;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
-import net.minecraft.client.model.ModelPart;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.JsonHelper;
-import net.minecraft.util.math.Vec3d;
 
+import java.io.IOException;
 import java.util.LinkedHashMap;
 
 public class OriginalFurClient implements ClientModInitializer {
@@ -67,12 +64,21 @@ public class OriginalFurClient implements ClientModInitializer {
             final String r_M = "\\/([A-Za-z0-9_.-]+)\\.json";
             @Override
             public void reload(ResourceManager manager) {
+
                 var resources = manager.findResources("furs", identifier -> identifier.getPath().endsWith(".json"));
                 for (var res : resources.keySet()) {
-                    System.out.println(res);
                     String itemName = res.getPath().replaceAll(".*/(.*?)\\.json", "$1");
                     Identifier id = new Identifier("origin", itemName);
-                    FUR_RESOURCES.put(id, resources.get(res));
+                    if (FUR_REGISTRY.containsKey(id.getPath())) {
+                        OriginFurModel m = (OriginFurModel) FUR_REGISTRY.get(id.getPath()).getGeoModel();
+                        try {
+                            m.recompile(JsonParser.parseString(new String(resources.get(res).getInputStream().readAllBytes())).getAsJsonObject());
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    } else {
+                        FUR_RESOURCES.put(id, resources.get(res));
+                    }
                 }
             }
         });

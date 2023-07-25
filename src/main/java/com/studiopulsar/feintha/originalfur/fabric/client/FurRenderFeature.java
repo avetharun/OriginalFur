@@ -1,23 +1,17 @@
-package com.studiopulsar.feintha.originalfur.client;
+package com.studiopulsar.feintha.originalfur.fabric.client;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.studiopulsar.feintha.originalfur.IPlayerEntityMixins;
-import com.studiopulsar.feintha.originalfur.ModelRootAccessor;
+import com.studiopulsar.feintha.originalfur.fabric.OriginFurModel;
+import com.studiopulsar.feintha.originalfur.fabric.IPlayerEntityMixins;
+import com.studiopulsar.feintha.originalfur.fabric.ModelRootAccessor;
 import io.github.apace100.apoli.power.PowerTypeRegistry;
 import io.github.apace100.origins.component.PlayerOriginComponent;
 import io.github.apace100.origins.origin.Origin;
 import io.github.apace100.origins.origin.OriginLayers;
 import io.github.apace100.origins.registry.ModComponents;
-import mod.azure.azurelib.model.GeoModel;
-import mod.azure.azurelib.renderer.layer.GeoRenderLayer;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
-import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
-import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.entity.EndermanEntityRenderer;
 import net.minecraft.client.render.entity.PlayerEntityRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRendererContext;
@@ -63,7 +57,7 @@ public class FurRenderFeature <T extends LivingEntity, M extends BipedEntityMode
             var acc = (ModelRootAccessor)eR.getModel();
             var a = fur.getAnimatable();
             OriginFurModel m = (OriginFurModel) fur.getGeoModel();
-
+            if (m == null) {return;}
             Origin finalO = o;
             m.getAnimationProcessor().getRegisteredBones().forEach(coreGeoBone -> {
                 coreGeoBone.setHidden(false);
@@ -75,6 +69,13 @@ public class FurRenderFeature <T extends LivingEntity, M extends BipedEntityMode
                         (finalO.hasPowerType(PowerTypeRegistry.get(new Identifier("origins:elytra")))
                                 || abstractClientPlayerEntity.getEquippedStack(EquipmentSlot.CHEST).isOf(Items.ELYTRA)));
                 if (coreGeoBone.isHidden()) {return;}
+                coreGeoBone.setHidden(coreGeoBone.getName().endsWith("helmet_hides") && !abstractClientPlayerEntity.getEquippedStack(EquipmentSlot.HEAD).isEmpty());
+                if (coreGeoBone.isHidden()) {return;}
+                coreGeoBone.setHidden(coreGeoBone.getName().endsWith("chestplate_hides") && !abstractClientPlayerEntity.getEquippedStack(EquipmentSlot.CHEST).isEmpty());
+                if (coreGeoBone.isHidden()) {return;}
+                coreGeoBone.setHidden(coreGeoBone.getName().endsWith("leggings_hides") && !abstractClientPlayerEntity.getEquippedStack(EquipmentSlot.LEGS).isEmpty());
+                if (coreGeoBone.isHidden()) {return;}
+                coreGeoBone.setHidden(coreGeoBone.getName().endsWith("boot_hides") && !abstractClientPlayerEntity.getEquippedStack(EquipmentSlot.FEET).isEmpty());
             });
             fur.setPlayer(abstractClientPlayerEntity);
             var lAP = eR.getModel().leftArmPose;
@@ -92,6 +93,8 @@ public class FurRenderFeature <T extends LivingEntity, M extends BipedEntityMode
                 m.resetBone("bipedRightArm");
                 m.resetBone("bipedLeftLeg");
                 m.resetBone("bipedRightLeg");
+                m.setScaleForBone("bipedLeftLeg", new Vec3d(1.075f, 1.01f, 1.075f));
+                m.setScaleForBone("bipedRightLeg", new Vec3d(1.075f, 1.01f, 1.075f));
                 MinecraftClient.getInstance().getProfiler().push("copy_mojmap");
                 m.copyRotFromMojangModelPart("bipedHead", eR.getModel().head, true, false, false);
                 m.copyRotFromMojangModelPart("bipedBody", eR.getModel().body);
@@ -104,10 +107,10 @@ public class FurRenderFeature <T extends LivingEntity, M extends BipedEntityMode
                 m.copyRotFromMojangModelPart("bipedLeftLeg", eR.getModel().leftLeg);
                 m.translatePositionForBone("bipedRightArm", new Vec3d(-5, -2, 0));
                 m.translatePositionForBone("bipedLeftArm", new Vec3d(5, -2, 0));
-//            m.setScaleForBone("bipedRightLeg", new Vec3d(0.995, 0.99, 0.995));
-//            m.translateRotationForBone("bipedRightLeg", new Vec3d(0,-.5 * MathHelper.RADIANS_PER_DEGREE, 0));
-//            m.translatePositionForBone("bipedLeftLeg", new Vec3d(0, 0, -.005));
-//            m.translatePositionForBone("bipedRightLeg", new Vec3d(0, 0, -.005));
+                m.copyPosFromMojangModelPart("bipedLeftLeg", eR.getModel().leftLeg);
+                m.copyPosFromMojangModelPart("bipedRightLeg", eR.getModel().rightLeg);
+                m.translatePositionForBone("bipedLeftLeg", new Vec3d(-2.3,-12,0));
+                m.translatePositionForBone("bipedRightLeg", new Vec3d(2.3,-12,0));
                 MinecraftClient.getInstance().getProfiler().pop();
                 MinecraftClient.getInstance().getProfiler().push("transform_manual");
                 if (abstractClientPlayerEntity.isInSneakingPose()) {
@@ -116,8 +119,8 @@ public class FurRenderFeature <T extends LivingEntity, M extends BipedEntityMode
                     m.translatePositionForBone("bipedHead", new Vec3d(0, -4.2, 0));
                     m.translatePositionForBone("bipedLeftArm", new Vec3d(0, -6.4, 0));
                     m.translatePositionForBone("bipedRightArm", new Vec3d(0, -6.4, 0));
-                    m.translatePositionForBone("bipedRightLeg", new Vec3d(0, -0.2, -4));
-                    m.translatePositionForBone("bipedLeftLeg", new Vec3d(0, -0.2, -4));
+                    m.translatePositionForBone("bipedRightLeg", new Vec3d(0, -0.3, -8));
+                    m.translatePositionForBone("bipedLeftLeg", new Vec3d(0, -0.3, -8));
                 }
 
                 MinecraftClient.getInstance().getProfiler().pop();
@@ -132,6 +135,8 @@ public class FurRenderFeature <T extends LivingEntity, M extends BipedEntityMode
 
                 MinecraftClient.getInstance().getProfiler().pop();
                 MinecraftClient.getInstance().getProfiler().pop();
+                m.popScl("bipedLeftLeg");
+                m.popScl("bipedRightLeg");
                 matrixStack.pop();
             }
         };

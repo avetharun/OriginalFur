@@ -1,4 +1,4 @@
-package com.studiopulsar.feintha.originalfur.client;
+package com.studiopulsar.feintha.originalfur;
 
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.core.animatable.instance.AnimatableInstanceCache;
@@ -16,7 +16,7 @@ public class OriginFurAnimatable implements GeoAnimatable {
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar) {
-        controllerRegistrar.add(new AnimationController<com.studiopulsar.feintha.originalfur.client.OriginFurAnimatable>(this, "origin_fur", animationState -> {
+        controllerRegistrar.add(new AnimationController<OriginFurAnimatable>(this, "origin_fur", animationState -> {
             animationState.setAnimation(RawAnimation.begin().then("idle", Animation.LoopType.LOOP));
             return PlayState.CONTINUE;
         }));

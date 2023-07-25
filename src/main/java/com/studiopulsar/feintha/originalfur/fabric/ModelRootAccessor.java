@@ -1,4 +1,4 @@
-package com.studiopulsar.feintha.originalfur;
+package com.studiopulsar.feintha.originalfur.fabric;
 
 import net.minecraft.client.model.ModelPart;
 

@@ -1,4 +1,10 @@
 {
 
-  "elytraTexture": "originalfur:textures/shulk/shulk_elytra.png"
+  "model": "originalfur:geo/shulk.geo.json",
+  "texture": "originalfur:textures/shulk.png",
+  "overlay": "originalfur:textures/shulk_skin.png",
+  "elytraTexture": "originalfur:textures/shulk/shulk_elytra.png",
+  "hidden": [
+    "leftArm","rightArm", "body", "jacket"
+  ]
 }

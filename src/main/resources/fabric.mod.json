@@ -9,18 +9,18 @@
     "repo": "https://github.com/avetharun/FabricOriginalFur"
   },
   "license": "unlicense",
-  "icon": "icon.png",
+  "icon": "assets/originalfur/icon.png",
   "environment": "*",
   "entrypoints": {
     "client": [
-      "com.studiopulsar.feintha.originalfur.client.OriginalFurClient"
+      "com.studiopulsar.feintha.originalfur.fabric.client.OriginalFurClient"
     ],
     "main": [
-      "com.studiopulsar.feintha.originalfur.OriginalFur"
+      "com.studiopulsar.feintha.originalfur.fabric.OriginalFur"
     ]
   },
   "mixins": [
-    "originalfur.mixins.json"
+    "originalfur.fabric.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=${loader_version}",

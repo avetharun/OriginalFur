@@ -13,14 +13,12 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.*;
 import net.minecraft.registry.Registries;
-import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.resource.*;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
@@ -30,10 +28,7 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.reflect.*;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.zip.Adler32;
@@ -41,6 +36,31 @@ import java.util.zip.CRC32;
 
 @SuppressWarnings("unused")
 public class alib {
+    public static Vec3d VectorFromJson(JsonElement o) {
+        double x = 0,y = 0,z = 0;
+        if (o.isJsonArray()) {
+            var a = o.getAsJsonArray();
+            x = a.get(0).getAsDouble();
+            y = a.get(1).getAsDouble();
+            z = a.get(2).getAsDouble();
+        } else if (o.isJsonObject()) {
+            x = o.getAsJsonObject().get("x").getAsDouble();
+            y = o.getAsJsonObject().get("y").getAsDouble();
+            z = o.getAsJsonObject().get("z").getAsDouble();
+        } else if (o.isJsonPrimitive() && o.getAsJsonPrimitive().isNumber()) {
+            return longToVec3d(o.getAsLong());
+        }
+        return new Vec3d(x,y,z);
+    }
+    public static Vec3d longToVec3d(long value) {
+        // Extract x, y, and z components from the long value
+        double x = (double) (value & 0xFFFF);
+        double y = (double) ((value >> 16) & 0xFFFF);
+        double z = (double) ((value >> 32) & 0xFFFF);
+
+        // Return the Vec3d with the extracted components
+        return new Vec3d(x, y, z);
+    }
     public static NbtCompound packBlockStateIntoCompound(BlockState s, NbtCompound c) {
         for (var prop : s.getProperties()) {
             String n = prop.getName();
@@ -341,6 +361,9 @@ public class alib {
     public static boolean getbit(long var, long nbit) {
         return ((var) & (1L <<(nbit))) == 1;
     }
+    public static boolean getbitmask(long var, long mask) {
+        return (var & mask) == mask;
+    }
     public static long setbit(long var, long nbit, boolean value) {
         if (value) {
             return bitenable(var, nbit);
@@ -350,27 +373,6 @@ public class alib {
     }
     public static boolean isBlockIn(BlockState source, TagKey<Block> tag) {
         return source.isIn(tag);
-    }
-    public static List<Pair<Identifier, Block>> GetAllBlocksInTag(TagKey<Block> tag) {
-        List<Pair<Identifier, Block>> data = new ArrayList<>();
-        Optional<RegistryEntryList.Named<Block>> init_BLOCKS = Registries.BLOCK.getEntryList(tag);
-        init_BLOCKS.ifPresent(registryEntries -> registryEntries.forEach(entry -> {
-            Identifier id = entry.getKey().get().getValue();
-            Block block = entry.value();
-            data.add(Pair.of(id,block));
-        }));
-        return data;
-    }
-    public static List<Pair<Identifier, Block>> GetAllBlocksInTagAnd(TagKey<Block> tag, Consumer<Pair<Identifier, Block>> onFound) {
-        List<Pair<Identifier, Block>> data = new ArrayList<>();
-        Optional<RegistryEntryList.Named<Block>> init_BLOCKS = Registries.BLOCK.getEntryList(tag);
-        init_BLOCKS.ifPresent(registryEntries -> registryEntries.forEach(entry -> {
-            Identifier id = entry.getKey().get().getValue();
-            Block block = entry.value();
-            data.add(Pair.of(id,block));
-            onFound.accept(Pair.of(id,block));
-        }));
-        return data;
     }
     public static BlockPos getBlockPosFromArray(long[] a) {
         if (a.length < 3) {return BlockPos.ORIGIN;}
