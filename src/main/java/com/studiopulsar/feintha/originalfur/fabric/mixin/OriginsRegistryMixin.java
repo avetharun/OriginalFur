@@ -31,7 +31,18 @@ public class OriginsRegistryMixin {
             var manager = MinecraftClient.getInstance().getResourceManager();
             String path = "furs";
             Identifier id = new Identifier("origin", ids[i].getPath());
-            System.out.println(id);
+            var fur = OriginalFurClient.FUR_RESOURCES.getOrDefault(id, null);
+            if (fur == null) {
+                OriginalFurClient.FUR_REGISTRY.put(id.getPath(), new OriginalFurClient.OriginFur(JsonParser.parseString("{}").getAsJsonObject()));
+            } else {
+                OriginalFurClient.FUR_REGISTRY.put(id.getPath(), new  OriginalFurClient.OriginFur(JsonParser.parseString(new String(fur.getInputStream().readAllBytes())).getAsJsonObject()));
+            }
+        }
+        @Inject(method="lambda$receiveOriginList$4", at=@At(value="HEAD"))
+        private static void onRecievedOriginsDefineMissingMixin(Identifier[] ids, SerializableData.Instance[] origins, CallbackInfo ci) throws IOException {
+            var manager = MinecraftClient.getInstance().getResourceManager();
+            String path = "furs";
+            Identifier id = new Identifier("origin", "empty");
             var fur = OriginalFurClient.FUR_RESOURCES.getOrDefault(id, null);
             if (fur == null) {
                 OriginalFurClient.FUR_REGISTRY.put(id.getPath(), new OriginalFurClient.OriginFur(JsonParser.parseString("{}").getAsJsonObject()));

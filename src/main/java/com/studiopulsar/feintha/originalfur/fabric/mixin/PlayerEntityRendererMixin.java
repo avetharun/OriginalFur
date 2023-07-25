@@ -14,12 +14,14 @@ import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.RenderLayers;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.LivingEntityRenderer;
 import net.minecraft.client.render.entity.PlayerEntityRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRenderer;
 import net.minecraft.client.render.entity.model.EntityModel;
+import net.minecraft.client.render.entity.model.EntityModels;
 import net.minecraft.client.render.entity.model.PlayerEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
@@ -97,10 +99,6 @@ public class PlayerEntityRendererMixin {
             return thinArms;
         }
     }
-//    @Inject(method="render(Lnet/minecraft/client/network/AbstractClientPlayerEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", at=@At("TAIL"))
-//    private void renderMixin(AbstractClientPlayerEntity abstractClientPlayerEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci){
-////        OriginalFurClient.render(abstractClientPlayerEntity,0,0,matrixStack,vertexConsumerProvider,i);
-//
 
     @Pseudo
     @Mixin(LivingEntityRenderer.class)
@@ -136,7 +134,7 @@ public class PlayerEntityRendererMixin {
             return isInvisible;
         }
 
-        @Inject(method="render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
+        @Final @Inject(method="render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
                 at=@At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/model/EntityModel;render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumer;IIFFFF)V",
                 shift = At.Shift.BEFORE))
         private void renderPreProcessMixin(T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci){
@@ -145,9 +143,6 @@ public class PlayerEntityRendererMixin {
                 isInvisible = false;
                 PlayerOriginComponent c = (PlayerOriginComponent) ModComponents.ORIGIN.get(abstractClientPlayerEntity);
                 var mod = (PlayerEntityModel)this.getModel();
-//                Iterable<ModelPart> headParts = alib.runPrivateMixinMethod(mod, "getHeadParts");
-//                Iterable<ModelPart> bodyParts = alib.runPrivateMixinMethod(mod, "getBodyParts");
-
                 for (var layer : OriginLayers.getLayers()) {
                     var origin = c.getOrigin(layer);
                     if (origin == null) {return;}
@@ -182,7 +177,7 @@ public class PlayerEntityRendererMixin {
                 }
             }
         }
-        @Inject(method="render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
+        @Final @Inject(method="render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
                 at=@At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/model/EntityModel;render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumer;IIFFFF)V",
                         shift = At.Shift.AFTER))
         private void renderPostProcessMixin(T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci){
@@ -190,13 +185,12 @@ public class PlayerEntityRendererMixin {
                 matrixStack.translate(0,-9999,0);
             }
         }
-        @Inject(method="render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
+        @Final @Inject(method="render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
                 at=@At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/model/EntityModel;render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumer;IIFFFF)V",
                         shift = At.Shift.AFTER))
         private void renderOverlayTexture(T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci){
             if (!isInvisible && livingEntity instanceof AbstractClientPlayerEntity aCPE) {
                 PlayerOriginComponent c = (PlayerOriginComponent) ModComponents.ORIGIN.get(aCPE);
-
                 int p = getOverlayMixin(livingEntity, this.getAnimationCounter(livingEntity, g));
                 for (var layer : OriginLayers.getLayers()) {
                     var origin = c.getOrigin(layer);
@@ -206,9 +200,6 @@ public class PlayerEntityRendererMixin {
                     MinecraftClient.getInstance().getProfiler().push("originalfurs:" + origin.getIdentifier().getPath());
                     Identifier id = origin.getIdentifier();
                     var opt = OriginalFurClient.FUR_REGISTRY.get(id.getPath());
-                    if (opt == null) {
-                        return;
-                    }
                     var model = (ModelRootAccessor)(PlayerEntityModel<?>)this.getModel();
                     OriginFurModel m_Model = (OriginFurModel) opt.getGeoModel();
                     var overlayTexture = m_Model.getOverlayTexture(model.originalFur$isSlim());
@@ -224,15 +215,21 @@ public class PlayerEntityRendererMixin {
                         RenderLayer l = RenderLayer.getEntityTranslucentEmissive(emissiveTexture);
                         this.model.render(matrixStack, vertexConsumerProvider.getBuffer(l), i, p, 1, 1, 1, bl2 ? 0.15F : 1.0F);
                     }
+                    var m = (PlayerEntityModel<?>)this.getModel();
+                    m.hat.hidden = false;
+                    m.head.hidden = false;
+                    m.body.hidden = false;
+                    m.jacket.hidden = false;
+                    m.leftArm.hidden = false;
+                    m.leftSleeve.hidden = false;
+                    m.rightArm.hidden = false;
+                    m.rightSleeve.hidden = false;
+                    m.leftLeg.hidden = false;
+                    m.leftPants.hidden = false;
+                    m.rightLeg.hidden = false;
+                    m.rightPants.hidden = false;
                 }
             }
         }
-//        @Inject(method="render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
-//        at=@At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/model/EntityModel;render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumer;IIFFFF)V",
-//        shift = At.Shift.AFTER))
-//        void postRenderMixin(T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci){
-//            if (livingEntity instanceof AbstractClientPlayerEntity abstractClientPlayerEntity && isInvisible) {
-//            }
-//        }
     }
 }

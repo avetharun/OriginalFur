@@ -30,11 +30,6 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class OriginalFur implements ModInitializer {
-
-//    public static final Registry<OriginalFurRenderer> ORIGIN_RENDERERS = FabricRegistryBuilder.createSimple(OriginalFurRenderer.class, Identifier.of("originalfur", "renderers")).buildAndRegister();
-    /**
-     * Runs the mod initializer.
-     */
     @Override
     public void onInitialize() {
         AzureLib.initialize();

@@ -36,12 +36,4 @@ public class ItemRendererMixin <T extends LivingEntity, M extends EntityModel<T>
         }
 
     }
-
-//    void renderLeftItem(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, T livingEntity, float f, float g, float h, float j, float k, float l, CallbackInfo ci) {
-//        if (livingEntity instanceof ClientPlayerEntity cPE && livingEntity instanceof IPlayerEntityMixins iPE) {
-//            var m = iPE.originalFur$getCurrentModel();
-//            if (m == null) {return;}
-//            var o = m.getLeftOffset();
-//            matrixStack.translate(o.x * 0.5f, o.y * 0.5f, o.z * 0.5f);
-//        }
 }

@@ -37,12 +37,14 @@ public class FurRenderFeature <T extends LivingEntity, M extends BipedEntityMode
             PlayerOriginComponent c = (PlayerOriginComponent) ModComponents.ORIGIN.get(abstractClientPlayerEntity);
             Origin o = null;
             OriginalFurClient.OriginFur fur = null;
+
             for (var layer : OriginLayers.getLayers()) {
                 var origin = c.getOrigin(layer);
+                if (origin == null) {continue;}
                 Identifier id = origin.getIdentifier();
                 var opt = OriginalFurClient.FUR_REGISTRY.get(id.getPath());
                 if (opt == null) {
-                    return;
+                    continue;
                 }
                 if (c.hasOrigin(layer)) {
                     o = origin;
@@ -51,13 +53,14 @@ public class FurRenderFeature <T extends LivingEntity, M extends BipedEntityMode
                 }
             }
             if (o == null) {return;}
+//            if (fur == null) {return;}
             var eR = (PlayerEntityRenderer)MinecraftClient.getInstance().getEntityRenderDispatcher().getRenderer(abstractClientPlayerEntity);
             var eRA = (IPlayerEntityMixins) eR;
 
             var acc = (ModelRootAccessor)eR.getModel();
+            assert fur != null;
             var a = fur.getAnimatable();
             OriginFurModel m = (OriginFurModel) fur.getGeoModel();
-            if (m == null) {return;}
             Origin finalO = o;
             m.getAnimationProcessor().getRegisteredBones().forEach(coreGeoBone -> {
                 coreGeoBone.setHidden(false);
@@ -102,7 +105,6 @@ public class FurRenderFeature <T extends LivingEntity, M extends BipedEntityMode
                 m.copyPosFromMojangModelPart("bipedRightArm", eR.getModel().leftArm);
                 m.copyRotFromMojangModelPart("bipedLeftArm", eR.getModel().leftArm, true, false, false);
                 m.copyRotFromMojangModelPart("bipedRightArm", eR.getModel().rightArm, true, false, false);
-                // For some reason, these two are inverted!
                 m.copyRotFromMojangModelPart("bipedRightLeg", eR.getModel().rightLeg);
                 m.copyRotFromMojangModelPart("bipedLeftLeg", eR.getModel().leftLeg);
                 m.translatePositionForBone("bipedRightArm", new Vec3d(-5, -2, 0));
@@ -126,7 +128,6 @@ public class FurRenderFeature <T extends LivingEntity, M extends BipedEntityMode
                 MinecraftClient.getInstance().getProfiler().pop();
                 matrixStack.translate(-0.5, -0.5, -0.5);
                 MinecraftClient.getInstance().getProfiler().push("render");
-//            RenderSystem.setColor
                 if (i == 0) {
                     fur.render(matrixStack, a, vertexConsumerProvider, RenderLayer.getEntityCutout(fur.getTextureLocation(a)), null, light);
                 } else {

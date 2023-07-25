@@ -41,6 +41,7 @@ dependencies {
     modImplementation "maven.modrinth:azurelib:D0bLIbTK"
     modImplementation "maven.modrinth:cardinal-components-api:HykM2Qyv"
     modImplementation(files("libs/Apoli-1.20.1-2.9.0.jar"))
+    modCompileOnly "maven.modrinth:iris:URWeWMAt"
     modCompileOnly(files(
             "libs/cardinal-components-base-5.2.1.jar",
             "libs/cardinal-components-block-5.2.1.jar",
