@@ -46,7 +46,13 @@ Description of each option in the fur json file:
 
 - overlay : Texture to draw on top of the player's skin (Note: hidden parts will not be drawn)
 
+- overlay_slim : Texture to draw on top of the player's skin, which will only display for Slim (Alex) skins.
+  - Note: if this is defined, overlay will also only display for Wide (Steve) skins.
+
 - emissive_overlay : Emissive texture to draw on top of the player's skin
+
+- emissive_overlay_slim : Emissive texture to draw on top of the player's skin, which will only display for Slim (Alex) skins
+  - Note: if this is defined, emissive_overlay will also only display for Wide (Steve) skins.
 
 - rendering_offsets : Offsets for specific rendering parts. See below for description
 
