@@ -7,6 +7,10 @@ Adding custom models
 
 Custom model path: `assets/originalfur/furs/origin_name.json`
 
+Optionally, if you want a specific model to not override origins with the same name (conflicting names) you can append your origin's namespace, as follows:
+
+`assets/originalfur/furs/namespace.origin_name.json`
+
 Full json file example
 ::
   {
