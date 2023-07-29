@@ -151,9 +151,18 @@ public class PlayerEntityRendererMixin {
                     if (origin == null) {return;}
                     MinecraftClient.getInstance().getProfiler().push("originalfurs:" + origin.getIdentifier().getPath());
                     Identifier id = origin.getIdentifier();
-                    var opt = OriginalFurClient.FUR_REGISTRY.get(id.getPath());
-                    if (opt == null) {return;}
+                    var opt = OriginalFurClient.FUR_REGISTRY.get(id);
+                    if (opt == null) {
+                        opt = OriginalFurClient.FUR_REGISTRY.get(Identifier.of("origins", id.getPath()));
+                        if (opt ==null) {
+                            System.out.println("Was null in preProcess mixin: " + id);
+                            System.out.println(OriginalFurClient.FUR_REGISTRY.keySet());
+                            return;
+                        }
+                    }
                     OriginFurModel m_Model = (OriginFurModel) opt.getGeoModel();
+
+                    m_Model.preRender$mixinOnly(abstractClientPlayerEntity);
                     if (m_Model.isPlayerModelInvisible()) {
                         isInvisible = true;
                         matrixStack.translate(0,9999,0);
@@ -202,7 +211,15 @@ public class PlayerEntityRendererMixin {
                     }
                     MinecraftClient.getInstance().getProfiler().push("originalfurs:" + origin.getIdentifier().getPath());
                     Identifier id = origin.getIdentifier();
-                    var opt = OriginalFurClient.FUR_REGISTRY.get(id.getPath());
+                    var opt = OriginalFurClient.FUR_REGISTRY.get(id);
+                    if (opt == null) {
+                        opt = OriginalFurClient.FUR_REGISTRY.get(Identifier.of("origins", id.getPath()));
+                        if (opt ==null) {
+                            System.out.println("Was null in rendering mixin: " + id);
+                            System.out.println(OriginalFurClient.FUR_REGISTRY.keySet());
+                            return;
+                        }
+                    }
                     var model = (ModelRootAccessor)(PlayerEntityModel<?>)this.getModel();
                     OriginFurModel m_Model = (OriginFurModel) opt.getGeoModel();
                     var overlayTexture = m_Model.getOverlayTexture(model.originalFur$isSlim());

@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import com.google.gson.internal.LazilyParsedNumber;
 import net.fabricmc.fabric.api.util.NbtType;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -90,79 +91,236 @@ public class alib {
     }
 
     // Checks if left is present and values equal in right.
-    public static boolean checkNBTEquals(NbtCompound left, NbtCompound right) {
-        if (left.getSize() == right.getSize() && left.getSize() == 0) {return true;}
+    public static boolean checkNBTEquals(NbtElement leftE, NbtElement rightE) {
         boolean bl = true;
-        for (String key : left.getKeys()) {
-            if (!bl || !right.contains(key)) {return false;}
-            NbtElement e_L = left.get(key);
-            NbtElement e_R = right.get(key);
-            int elem_t = left.getType(key);
-            if (right.getType(key) != elem_t) {
-                return false;
+        if (leftE instanceof NbtList left && rightE instanceof  NbtList right) {
+            if (left.size() == right.size() && left.size() == 0) {
+                System.out.println("was empty");
+                return true;
             }
-            if (left.get(key) instanceof NbtList lL && right.get(key) instanceof NbtList rL) {
-                if (lL.size() != rL.size()) {return false;}
-                int i = 0;
-                for (NbtElement e : lL.subList(0, lL.size())) {
-                    if (!e.asString().contentEquals(rL.get(i).asString())){
+            int i = 0;
+            for (NbtElement e : left.subList(0, left.size())) {
+                // It is assumed the values are of the same type- NbtLists require this normally!
+                if (!e.toString().contentEquals(right.get(i).toString())) {
+                    System.out.println("content not equals");
+                    return false;
+                }
+                i++;
+            }
+        }
+        else if (leftE instanceof NbtCompound left && rightE instanceof NbtCompound right) {
+            if (left.getSize() == right.getSize() && left.getSize() == 0) {
+                System.out.println("was empty");
+                return true;
+            }
+            for (String key : left.getKeys()) {
+                if (!bl || !right.contains(key)) {
+                    System.out.println("key missing");
+                    return false;
+                }
+                NbtElement e_L = left.get(key);
+                NbtElement e_R = right.get(key);
+                int elem_t = left.getType(key);
+                if (right.getType(key) != elem_t) {
+                    System.out.println("type mismatch");
+                    return false;
+                }
+                if (left.get(key) instanceof NbtList lL && right.get(key) instanceof NbtList rL) {
+                    if (lL.size() != rL.size()) {
+                        System.out.println("was empty");
                         return false;
                     }
-                    i++;
+                    int i = 0;
+                    for (NbtElement e : lL.subList(0, lL.size())) {
+                        if (!e.toString().contentEquals(rL.get(i).toString())) {
+                            System.out.println("content not equals");
+                            return false;
+                        }
+                        i++;
+                    }
                 }
-            }
 
-            if (e_L instanceof AbstractNbtNumber numL && e_R instanceof AbstractNbtNumber numR) {
-                switch (elem_t) {
-                    case NbtType.INT -> bl = numL.intValue() == numR.intValue();
-                    case NbtType.SHORT -> bl = numL.shortValue() == numR.shortValue();
-                    case NbtType.BYTE -> bl = numL.byteValue() == numR.byteValue();
-                    case NbtType.FLOAT -> bl = numL.floatValue() == numR.floatValue();
-                    case NbtType.DOUBLE -> bl = numL.doubleValue() == numR.doubleValue();
-                    case NbtType.LONG -> bl = numL.longValue() == numR.longValue();
+                if (e_L instanceof AbstractNbtNumber numL && e_R instanceof AbstractNbtNumber numR) {
+                    switch (elem_t) {
+                        case NbtType.INT -> bl = numL.intValue() == numR.intValue();
+                        case NbtType.SHORT -> bl = numL.shortValue() == numR.shortValue();
+                        case NbtType.BYTE -> bl = numL.byteValue() == numR.byteValue();
+                        case NbtType.FLOAT -> bl = numL.floatValue() == numR.floatValue();
+                        case NbtType.DOUBLE -> bl = numL.doubleValue() == numR.doubleValue();
+                        case NbtType.LONG -> bl = numL.longValue() == numR.longValue();
+                    }
                 }
-            }
-            switch (elem_t) {
-                case NbtType.COMPOUND -> bl = checkNBTEquals(left.getCompound(key), right.getCompound(key));
-                case NbtType.STRING -> bl = e_L.asString().contentEquals(e_R.asString());
+                switch (elem_t) {
+                    case NbtType.COMPOUND -> bl = checkNBTEquals(left.getCompound(key), right.getCompound(key));
+                    case NbtType.STRING -> bl = e_L.asString().contentEquals(e_R.asString());
+                }
             }
         }
         return bl;
     }
 
-    public static NbtCompound json2NBT(JsonObject jsonObject) {
-        NbtCompound nbtCompound = new NbtCompound();
+//    public static NbtElement json2NBT(JsonElement jsonObject) {
+//        if (jsonObject instanceof JsonArray arr) {
+//            NbtList nbtArray = new NbtList();
+//            for (var elem : arr) {
+//                if (elem.isJsonPrimitive()) {
+//                    JsonPrimitive primitive = elem.getAsJsonPrimitive();
+//                    if (primitive.isNumber()) {
+//                        if (primitive.getAsNumber() instanceof Integer i) {
+//                            nbtArray.add(NbtInt.of(i));
+//                        } else if (primitive.getAsNumber() instanceof Float i) {
+//                            nbtArray.add(NbtFloat.of(i));
+//                        } else if (primitive.getAsNumber() instanceof Double i) {
+//                            nbtArray.add(NbtDouble.of(i));
+//                        } else if (primitive.getAsNumber() instanceof Short i) {
+//                            nbtArray.add(NbtShort.of(i));
+//                        }
+//                    } else if (primitive.isBoolean()) {
+//                        nbtArray.add(NbtByte.of(primitive.getAsBoolean()));
+//                    } else if (primitive.isString()) {
+//                        nbtArray.add(NbtString.of(primitive.getAsString()));
+//                    }
+//                    // Add more conversions as needed for other primitive types
+//                } else if (elem.isJsonObject() || elem.isJsonArray()) {
+//                    NbtElement nested = json2NBT(elem);
+//                    nbtArray.add(nested);
+//                }
+//            }
+//            return nbtArray;
+//        }
+//
+//        if (jsonObject instanceof JsonObject obj) {
+//            NbtCompound nbtCompound = new NbtCompound();
+//            for (var entry : obj.entrySet()) {
+//                String key = entry.getKey();
+//                JsonElement jsonElement = entry.getValue();
+//                if (jsonElement.isJsonPrimitive()) {
+//                    JsonPrimitive primitive = jsonElement.getAsJsonPrimitive();
+//                    if (primitive.isNumber()) {
+//                        if (primitive.getAsNumber() instanceof Integer i) {
+//                            nbtCompound.putInt(key, i);
+//                        } else if (primitive.getAsNumber() instanceof Float i) {
+//                            nbtCompound.putFloat(key, i);
+//                        } else if (primitive.getAsNumber() instanceof Double i) {
+//                            nbtCompound.putDouble(key, i);
+//                        } else if (primitive.getAsNumber() instanceof Short i) {
+//                            nbtCompound.putShort(key, i);
+//                        }
+//                    } else if (primitive.isBoolean()) {
+//                        nbtCompound.putBoolean(key, primitive.getAsBoolean());
+//                    } else if (primitive.isString()) {
+//                        nbtCompound.putString(key, primitive.getAsString());
+//                    }
+//                    // Add more conversions as needed for other primitive types
+//                } else if (jsonElement.isJsonObject() || jsonElement.isJsonArray()) {
+//                    NbtElement nested = json2NBT(jsonElement);
+//                    nbtCompound.put(key, nested);
+//                }
+//            }
+//            return nbtCompound;
+//        }
+//
+//        // Return null for unsupported JSON elements (null, boolean, etc.)
+//        return null;
+//    }
 
-        for (var entry : jsonObject.entrySet()) {
-            String key = entry.getKey();
-            JsonElement jsonElement = entry.getValue();
 
-            if (jsonElement.isJsonPrimitive()) {
-                JsonPrimitive primitive = jsonElement.getAsJsonPrimitive();
-                if (primitive.isNumber()) {
-                    if (primitive.getAsNumber() instanceof Integer i) {
-                        nbtCompound.putInt(key, i);
-                    } else if (primitive.getAsNumber() instanceof Float i) {
-                        nbtCompound.putFloat(key, i);
-                    } else if (primitive.getAsNumber() instanceof Double i) {
-                        nbtCompound.putDouble(key, i);
-                    } else if (primitive.getAsNumber() instanceof Short i) {
-                        nbtCompound.putShort(key, i);
+    public static NbtElement json2NBT(JsonElement jsonElement) {
+        NbtElement nbtCompound = null;
+        if (jsonElement.isJsonArray()) {
+            nbtCompound = new NbtList();
+            for (var _e : jsonElement.getAsJsonArray()) {
+
+                if (_e.isJsonPrimitive()) {
+                    JsonPrimitive primitive = _e.getAsJsonPrimitive();
+                    if (primitive.isNumber()) {
+                        Number num = primitive.getAsNumber();
+                        if (primitive.getAsNumber() instanceof LazilyParsedNumber lPN) {
+                            // Sometimes, it won't parse properly.
+                            num = parseGsonLazilyParsedNumber(lPN);
+                        }
+                        if (num instanceof Integer i) {
+                            ((NbtList) nbtCompound).add(NbtInt.of(i));
+                        } else if (num instanceof Float i) {
+                            ((NbtList) nbtCompound).add(NbtFloat.of(i));
+                        } else if (num instanceof Double i) {
+                            ((NbtList) nbtCompound).add(NbtDouble.of(i));
+                        } else if (num instanceof Short i) {
+                            ((NbtList) nbtCompound).add(NbtShort.of(i));
+                        }
+                    } else if (primitive.isBoolean()) {
+                        ((NbtList) nbtCompound).add(NbtByte.of(primitive.getAsBoolean()));
+                    } else if (primitive.isString()) {
+                        ((NbtList) nbtCompound).add(NbtString.of(primitive.getAsString()));
                     }
-                } else if (primitive.isBoolean()) {
-                    nbtCompound.putBoolean(key, primitive.getAsBoolean());
-                } else if (primitive.isString()) {
-                    nbtCompound.putString(key, primitive.getAsString());
+                    // Add more conversions as needed for other primitive types
+                } else if (_e.isJsonObject() || _e.isJsonArray()) {
+                    NbtElement nestedCompound = json2NBT(_e);
+                    ((NbtList) nbtCompound).add(nestedCompound);
                 }
-                // Add more conversions as needed for other primitive types
-            } else if (jsonElement.isJsonObject() || jsonElement.isJsonArray()) {
-                NbtCompound nestedCompound = json2NBT(jsonElement.getAsJsonObject());
-                nbtCompound.put(key, nestedCompound);
             }
-            // Add more conversions as needed for other types like arrays or nested objects
-        }
+        } else if (jsonElement instanceof JsonObject jsonObject) {
+            nbtCompound= new NbtCompound();
+            for (var entry : jsonObject.entrySet()) {
+                String key = entry.getKey();
+                JsonElement _e = entry.getValue();
 
+                if (_e.isJsonPrimitive()) {
+                    JsonPrimitive primitive = _e.getAsJsonPrimitive();
+                    if (primitive.isNumber()) {
+                        Number num = primitive.getAsNumber();
+                        if (primitive.getAsNumber() instanceof LazilyParsedNumber lPN) {
+                            // Sometimes, it won't parse properly.
+                            num = parseGsonLazilyParsedNumber(lPN);
+                        }
+                        if (num instanceof Integer i) {
+                            ((NbtCompound) nbtCompound).putInt(key, i);
+                        } else if (num instanceof Float i) {
+                            ((NbtCompound) nbtCompound).putFloat(key, i);
+                        } else if (num instanceof Double i) {
+                            ((NbtCompound) nbtCompound).putDouble(key, i);
+                        } else if (num instanceof Short i) {
+                            ((NbtCompound) nbtCompound).putShort(key, i);
+                        } else {
+                            System.out.println("Found unexpected primitive: " + alib.getPrivateMixinField(primitive, "value").getClass().getTypeName());
+                        }
+                    } else if (primitive.isBoolean()) {
+                        ((NbtCompound) nbtCompound).putBoolean(key, primitive.getAsBoolean());
+                    } else if (primitive.isString()) {
+                        ((NbtCompound) nbtCompound).putString(key, primitive.getAsString());
+                    } else {
+                        System.out.println("Found unexpected primitive: " + alib.getPrivateMixinField(primitive, "value").getClass().getTypeName());
+                    }
+                } else if (_e.isJsonObject() || _e.isJsonArray()) {
+                    NbtElement nestedCompound = json2NBT(_e);
+                    ((NbtCompound) nbtCompound).put(key, nestedCompound);
+                }
+            }
+        }
         return nbtCompound;
+    }
+    private static Number parseGsonLazilyParsedNumber(LazilyParsedNumber number) {
+        String value = getPrivateMixinField(number, "value");
+        Number n = null;
+        try {
+            n = Integer.parseInt(value);
+        } catch (Exception _0i) {
+            try {
+                n = Float.parseFloat(value);
+            } catch (Exception _1f) {
+                try {
+                    n = Double.parseDouble(value);
+                } catch (Exception _2d) {
+                    try {
+                        n = Short.parseShort(value);
+                    } catch (Exception _3s) {
+                        n = Long.parseLong(value);
+                    }
+                }
+            }
+
+        }
+        return n;
     }
     public static <F,T> F getMixinField(T mixinType, String fieldName) {
         try {
@@ -198,6 +356,7 @@ public class alib {
         try {
             Field f = mixinType.getClass().getDeclaredField(fieldName);
             //noinspection unchecked
+            f.setAccessible(true);
             return (F) f.get(mixinType);
         } catch (NoSuchFieldException | IllegalAccessException e) {
             throw new RuntimeException(e);

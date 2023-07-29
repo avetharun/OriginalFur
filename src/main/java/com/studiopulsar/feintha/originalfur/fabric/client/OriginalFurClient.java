@@ -21,6 +21,7 @@ import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 
 public class OriginalFurClient implements ClientModInitializer {
@@ -56,7 +57,7 @@ public class OriginalFurClient implements ClientModInitializer {
     }
     public static boolean isRenderingInWorld = false;
 
-    public static LinkedHashMap<String, OriginFur> FUR_REGISTRY = new LinkedHashMap<>();
+    public static LinkedHashMap<Identifier, OriginFur> FUR_REGISTRY = new LinkedHashMap<>();
     public static LinkedHashMap<Identifier, Resource> FUR_RESOURCES = new LinkedHashMap<>();
     @Override
     public void onInitializeClient() {
@@ -74,10 +75,14 @@ public class OriginalFurClient implements ClientModInitializer {
 
                 var resources = manager.findResources("furs", identifier -> identifier.getPath().endsWith(".json"));
                 for (var res : resources.keySet()) {
-                    String itemName = res.getPath().replaceAll(".*/(.*?)\\.json", "$1");
-                    Identifier id = new Identifier("origin", itemName);
-                    if (FUR_REGISTRY.containsKey(id.getPath())) {
-                        OriginFurModel m = (OriginFurModel) FUR_REGISTRY.get(id.getPath()).getGeoModel();
+                    String itemName = res.getPath().substring(res.getPath().indexOf('/')+1, res.getPath().lastIndexOf('.'));
+                    Identifier id = new Identifier("origins", itemName);
+                    var p = itemName.split("\\.");
+                    if (p.length > 1) {
+                        id = Identifier.of(p[0], p[1]);
+                    }
+                    if (FUR_REGISTRY.containsKey(id)) {
+                        OriginFurModel m = (OriginFurModel) FUR_REGISTRY.get(id).getGeoModel();
                         try {
                             m.recompile(JsonParser.parseString(new String(resources.get(res).getInputStream().readAllBytes())).getAsJsonObject());
                         } catch (IOException e) {
@@ -86,9 +91,10 @@ public class OriginalFurClient implements ClientModInitializer {
                     } else {
                         FUR_RESOURCES.put(id, resources.get(res));
                     }
+                    System.out.println(id);
                 }
+                System.out.println(FUR_RESOURCES.keySet());
             }
         });
-        BakedGeoModel m;
     }
 }

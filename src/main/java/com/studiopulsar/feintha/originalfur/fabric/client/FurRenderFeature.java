@@ -8,6 +8,7 @@ import io.github.apace100.origins.component.PlayerOriginComponent;
 import io.github.apace100.origins.origin.Origin;
 import io.github.apace100.origins.origin.OriginLayers;
 import io.github.apace100.origins.registry.ModComponents;
+import io.github.apace100.originsclasses.OriginsClasses;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
@@ -51,8 +52,14 @@ public class FurRenderFeature <T extends LivingEntity, M extends BipedEntityMode
                 var origin = c.getOrigin(layer);
                 if (origin == null) {continue;}
                 Identifier id = origin.getIdentifier();
-                var opt = OriginalFurClient.FUR_REGISTRY.get(id.getPath());
+                var opt = OriginalFurClient.FUR_REGISTRY.get(id);
                 if (opt == null) {
+                    opt = OriginalFurClient.FUR_REGISTRY.get(Identifier.of("origins", id.getPath()));
+                    if (opt ==null) {
+                        System.out.println("Was null in feature: " + id);
+                        System.out.println(OriginalFurClient.FUR_REGISTRY.keySet());
+                        continue;
+                    }
                     continue;
                 }
                 if (c.hasOrigin(layer)) {
@@ -66,16 +73,11 @@ public class FurRenderFeature <T extends LivingEntity, M extends BipedEntityMode
             var eR = (PlayerEntityRenderer)MinecraftClient.getInstance().getEntityRenderDispatcher().getRenderer(abstractClientPlayerEntity);
             var eRA = (IPlayerEntityMixins) eR;
             var acc = (ModelRootAccessor)eR.getModel();
-            assert fur != null;
             var a = fur.getAnimatable();
             OriginFurModel m = (OriginFurModel) fur.getGeoModel();
             Origin finalO = o;
             m.getAnimationProcessor().getRegisteredBones().forEach(coreGeoBone -> {
-                coreGeoBone.setHidden(false);
-                coreGeoBone.setHidden(coreGeoBone.getName().endsWith("thin_only") && !acc.originalFur$isSlim());
-                if (coreGeoBone.isHidden()) {return;}
-                coreGeoBone.setHidden(coreGeoBone.getName().endsWith("wide_only") && acc.originalFur$isSlim());
-                if (coreGeoBone.isHidden()) {return;}
+                m.preprocess(finalO, eR, eRA, acc);
                 coreGeoBone.setHidden(coreGeoBone.getName().endsWith("elytra_hides") &&
                         (finalO.hasPowerType(PowerTypeRegistry.get(new Identifier("origins:elytra")))
                                 || abstractClientPlayerEntity.getEquippedStack(EquipmentSlot.CHEST).isOf(Items.ELYTRA)));
@@ -87,6 +89,10 @@ public class FurRenderFeature <T extends LivingEntity, M extends BipedEntityMode
                 coreGeoBone.setHidden(coreGeoBone.getName().endsWith("leggings_hides") && !abstractClientPlayerEntity.getEquippedStack(EquipmentSlot.LEGS).isEmpty());
                 if (coreGeoBone.isHidden()) {return;}
                 coreGeoBone.setHidden(coreGeoBone.getName().endsWith("boot_hides") && !abstractClientPlayerEntity.getEquippedStack(EquipmentSlot.FEET).isEmpty());
+                if (coreGeoBone.isHidden()) {return;}
+                coreGeoBone.setHidden(coreGeoBone.getName().endsWith("elytra_hides") &&
+                        (finalO.hasPowerType(PowerTypeRegistry.get(new Identifier("origins:elytra")))
+                                || abstractClientPlayerEntity.getEquippedStack(EquipmentSlot.CHEST).isOf(Items.ELYTRA)));
             });
             fur.setPlayer(abstractClientPlayerEntity);
             var lAP = eR.getModel().leftArmPose;
@@ -137,7 +143,7 @@ public class FurRenderFeature <T extends LivingEntity, M extends BipedEntityMode
                 matrixStack.translate(-0.5, -0.5, -0.5);
                 MinecraftClient.getInstance().getProfiler().push("render");
                 if (i == 0) {
-                    fur.render(matrixStack, a, vertexConsumerProvider, RenderLayer.getEntityCutout(fur.getTextureLocation(a)), null, light);
+                    fur.render(matrixStack, a, vertexConsumerProvider, RenderLayer.getEntityCutout(m.getTextureResource(a)), null, light);
                 } else {
                     fur.render(matrixStack, a, vertexConsumerProvider, RenderLayer.getEntityTranslucentEmissive(m.getFullbrightTextureResource(a)), null, Integer.MAX_VALUE - 1);
                 }

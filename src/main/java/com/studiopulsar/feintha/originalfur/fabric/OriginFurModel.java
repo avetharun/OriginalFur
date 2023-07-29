@@ -3,21 +3,29 @@ package com.studiopulsar.feintha.originalfur.fabric;
 import com.google.gson.JsonObject;
 import com.studiopulsar.feintha.originalfur.alib;
 import com.studiopulsar.feintha.originalfur.OriginFurAnimatable;
+import io.github.apace100.origins.origin.Origin;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceLinkedOpenHashMap;
+import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.cache.AzureLibCache;
 import mod.azure.azurelib.cache.object.GeoBone;
 import mod.azure.azurelib.model.GeoModel;
+import mod.azure.azurelib.util.AzureLibUtil;
 import net.minecraft.client.model.ModelPart;
+import net.minecraft.client.render.entity.PlayerEntityRenderer;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 import net.minecraft.util.math.Vec3d;
 import org.joml.Vector3d;
 
-import java.util.EnumSet;
-import java.util.LinkedHashMap;
-import java.util.Stack;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class OriginFurModel extends GeoModel<OriginFurAnimatable> {
+    PlayerEntity entity;
     JsonObject json;
     public OriginFurModel(JsonObject json) {
         this.recompile(json);
@@ -30,6 +38,24 @@ public class OriginFurModel extends GeoModel<OriginFurAnimatable> {
     public EnumSet<VMP> hiddenParts = EnumSet.noneOf(VMP.class);
     public EnumSet<VMP> getHiddenParts() {
         return hiddenParts;
+    }
+    private boolean dirty = false;
+    public void markDirty() {
+        dirty = true;
+    }
+    public void preprocess(Origin origin, PlayerEntityRenderer playerRenderer, IPlayerEntityMixins playerEntity, ModelRootAccessor model) {
+        getAnimationProcessor().getRegisteredBones().forEach(coreGeoBone -> {
+            coreGeoBone.setHidden(false);
+            coreGeoBone.setHidden(coreGeoBone.getName().endsWith("thin_only") && !model.originalFur$isSlim());
+            if (coreGeoBone.isHidden()) {
+                return;
+            }
+            coreGeoBone.setHidden(coreGeoBone.getName().endsWith("wide_only") && model.originalFur$isSlim());
+        });
+    }
+    public void preRender$mixinOnly(PlayerEntity player) {
+        this.entity = player;
+        this.currentOverride = this.getPredicateResources(player);
     }
     @SuppressWarnings("SpellCheckingInspection")
     public void parseHiddenParts() {
@@ -63,10 +89,15 @@ public class OriginFurModel extends GeoModel<OriginFurAnimatable> {
         var id = getModelResource(null);
         // Force cache this model! This is so getCachedGeoModel will not throw an exception unless the bone doesn't exist!
         AzureLibCache.getBakedModels().put(id, this.getBakedModel(id));
-        boneCache.clear();
-        for (var bone : this.getAnimationProcessor().getRegisteredBones()) {
-            boneCache.put(alib.getHash64(bone.getName()), (GeoBone) bone);
+        if (this.json.has("overrides") && this.json.get("overrides").isJsonArray()) {
+            System.out.println(this.json.get("overrides"));
+            JsonHelper.getArray(this.json,"overrides").forEach(jsonElement -> {
+                var o = ResourceOverride.deserialize(jsonElement.getAsJsonObject());
+                overrides.add(o);
+            });
+            overrides.sort((o1, o2) -> Float.compare(o1.weight, o2.weight));
         }
+
     }
     public boolean hasRenderingOffsets() {
         return json.has("rendering_offsets");
@@ -175,7 +206,7 @@ public class OriginFurModel extends GeoModel<OriginFurAnimatable> {
         }
         GeoBone b = this.getBone(bone_name).orElse(null);
         if (b == null) {
-//            System.err.println("Bone " + bone_name + " was null when fetching via string (hash: " + hash + ")");
+            System.err.println("Bone " + bone_name + " was null when fetching via string (hash: " + hash + ")");
             return null;
         }
         boneCache.putAndMoveToFirst(hash, b);
@@ -196,7 +227,10 @@ public class OriginFurModel extends GeoModel<OriginFurAnimatable> {
 
     public final GeoBone setPositionForBone(String bone_name, Vec3d pos) {
         var b = this.getCachedGeoBone(bone_name);
-        if (b == null) {return null;}
+        if (b == null) {
+            System.out.println("what the fuck.");
+            return null;
+        }
         b.setPosX((float)pos.x);
         b.setPosY((float)pos.y);
         b.setPosZ((float)pos.z);
@@ -204,7 +238,10 @@ public class OriginFurModel extends GeoModel<OriginFurAnimatable> {
     }
     public final GeoBone translatePositionForBone(String bone_name, Vec3d pos) {
         var b = this.getCachedGeoBone(bone_name);
-        if (b == null) {return null;}
+        if (b == null) {
+            System.out.println("what the fuck.");
+            return null;
+        }
         b.setPosX((float)pos.x + b.getPosX());
         b.setPosY((float)pos.y + b.getPosY());
         b.setPosZ((float)pos.z + b.getPosZ());
@@ -212,7 +249,10 @@ public class OriginFurModel extends GeoModel<OriginFurAnimatable> {
     }
     public final GeoBone translateRotationForBone(String bone_name, Vec3d pos) {
         var b = this.getCachedGeoBone(bone_name);
-        if (b == null) {return null;}
+        if (b == null) {
+            System.out.println("what the fuck.");
+            return null;
+        }
         b.setRotX((float)pos.x + b.getRotX());
         b.setRotY((float)pos.y + b.getRotY());
         b.setRotZ((float)pos.z + b.getRotZ());
@@ -220,7 +260,10 @@ public class OriginFurModel extends GeoModel<OriginFurAnimatable> {
     }
     public final GeoBone setRotationForBone(String bone_name, Vec3d rot) {
         var b = this.getCachedGeoBone(bone_name);
-        if (b == null) {return null;}
+        if (b == null) {
+            System.out.println("what the fuck.");
+            return null;
+        }
         b.setRotX((float)rot.x);
         b.setRotY((float)rot.y);
         b.setRotZ((float)rot.z);
@@ -228,7 +271,10 @@ public class OriginFurModel extends GeoModel<OriginFurAnimatable> {
     }
     public final GeoBone setScaleForBone(String bone_name, Vec3d scale) {
         var b = this.getCachedGeoBone(bone_name);
-        if (b == null) {return null;}
+        if (b == null) {
+            System.out.println("what the fuck.");
+            return null;
+        }
         b.setScaleX((float)scale.x);
         b.setScaleY((float)scale.y);
         b.setScaleZ((float)scale.z);
@@ -284,18 +330,115 @@ public class OriginFurModel extends GeoModel<OriginFurAnimatable> {
         return setPositionForBone(bone_name,rott);
     }
 //                public GeoModel setTransformationForBone(String bone_name, Vec3d pos, Vec3d scale, Quaterniond quaternion){}
+    private static class ResourceOverride {
+    public NbtElement requirements;
+    public Identifier textureResource = Identifier.tryParse("originalfur:textures/missing.png");
+    public Identifier modelResource = Identifier.tryParse("originalfur:geo/missing.geo.json");
+    public Identifier animationResource = Identifier.tryParse("originalfur:animations/missing.animation.json");
+        public float weight;
+        private static ResourceOverride deserializeBase(JsonObject object, ResourceOverride r) {
+            r.requirements = alib.json2NBT(object.get("condition"));
+            r.weight = JsonHelper.getFloat(object, "weight", 1f);
+            return r;
+        }
+        public static ResourceOverride deserialize(JsonObject object) {
+            var r = deserializeBase(object, new ResourceOverride());
+            r.textureResource = Identifier.tryParse(JsonHelper.getString(object, "texture", "originalfur:textures/missing.png"));
+            r.modelResource = Identifier.tryParse(JsonHelper.getString(object, "model", "originalfur:geo/missing.geo.json"));
+            r.animationResource = Identifier.tryParse(JsonHelper.getString(object, "animation", "originalfur:animations/missing.animation.json"));
+            return r;
+        }
+    }
+    public List<ResourceOverride> overrides = new ArrayList<>();
+    Identifier getTextureResource_P(PlayerEntity entity) {
+        AtomicReference<Identifier> override = new AtomicReference<>();
+        if (!overrides.isEmpty()) {
+            AtomicBoolean _continue = new AtomicBoolean(true);
+            var nbt = entity.writeNbt(new NbtCompound());
+            entity.writeCustomDataToNbt(nbt);
+            overrides.forEach(m_override -> {
+                if (!_continue.get()){return;}
+                if (alib.checkNBTEquals(m_override.requirements, nbt)){
+                    _continue.set(false);
+                    override.set(m_override.textureResource);
+                }
+            });
+        }
+        return override.get();
+    }
+    Identifier getModelResource_P(PlayerEntity entity) {
+        AtomicReference<Identifier> override = new AtomicReference<>();
+        if (!overrides.isEmpty()) {
+            AtomicBoolean _continue = new AtomicBoolean(true);
+            var nbt = entity.writeNbt(new NbtCompound());
+            entity.writeCustomDataToNbt(nbt);
+            overrides.forEach(m_override -> {
+                if (!_continue.get()){return;}
+                if (alib.checkNBTEquals(m_override.requirements, nbt)){
+                    _continue.set(false);
+                    override.set(m_override.modelResource);
+                }
+            });
+        }
+        return override.get();
+    }
+    Identifier getAnimationResource_P(PlayerEntity entity) {
+        AtomicReference<Identifier> override = new AtomicReference<>();
+        if (!overrides.isEmpty()) {
+            AtomicBoolean _continue = new AtomicBoolean(true);
+            var nbt = entity.writeNbt(new NbtCompound());
+            entity.writeCustomDataToNbt(nbt);
+            overrides.forEach(m_override -> {
+                if (!_continue.get()){return;}
+                if (alib.checkNBTEquals(m_override.requirements, nbt)){
+                    _continue.set(false);
+                    override.set(m_override.animationResource);
+                }
+            });
+        }
+        return override.get();
+    }
+    Identifier mRLast = null;
+    public ResourceOverride getPredicateResources(PlayerEntity entity){
+//        var mR = getModelResource_P(entity);
+//        var tR = getTextureResource_P(entity);
+//        var aR = getAnimationResource_P(entity);
+//        if (mRLast != mR) {
+//            boneCache.clear();
+//            for (var bone : this.getAnimationProcessor().getRegisteredBones()) {
+//                System.out.println(bone.getName());
+//                boneCache.put(alib.getHash64(bone.getName()), (GeoBone) bone);
+//            }
+//            mRLast = mR;
+//        }
+//        currentOverride.modelResource = mR != null && mR.compareTo(dMR(json)) != 0 ? mR : dMR(json);
+//        currentOverride.textureResource = tR != null && tR.compareTo(dTR(json)) != 0 ? tR : dTR(json);
+//        currentOverride.animationResource = aR != null && aR.compareTo(dAR(json)) != 0 ? aR : dAR(json);
 
+//
+        return currentOverride;
+    }
+    ResourceOverride currentOverride = new ResourceOverride();
+    public static Identifier dMR(JsonObject json) {
+        return Identifier.tryParse(JsonHelper.getString(json, "model", "originalfur:geo/missing.geo.json"));
+    }
+    public static Identifier dTR(JsonObject json) {
+        return Identifier.tryParse(JsonHelper.getString(json, "texture", "originalfur:textures/missing.png"));
+    }
+    public static Identifier dAR(JsonObject json) {
+        return Identifier.tryParse(JsonHelper.getString(json, "animation", "originalfur:animations/missing.animation.json"));
+    }
     @Override
     public Identifier getModelResource(OriginFurAnimatable geoAnimatable) {
-        var id = Identifier.tryParse(JsonHelper.getString(json, "model", "originalfur:geo/missing.geo.json"));
-
-        return id;
+        return dMR(json);
     }
-
     @Override
     public Identifier getTextureResource(OriginFurAnimatable geoAnimatable) {
-        var id = Identifier.tryParse(JsonHelper.getString(json, "texture", "originalfur:textures/missing.png"));
-        return id;
+        return dTR(json);
+    }
+    @Override
+    public Identifier getAnimationResource(OriginFurAnimatable geoAnimatable) {
+        return dAR(json);
     }
     public Identifier getFullbrightTextureResource(OriginFurAnimatable geoAnimatable) {
         var id = Identifier.tryParse(JsonHelper.getString(json, "fullbrightTexture", "originalfur:textures/missing.png"));
@@ -309,11 +452,5 @@ public class OriginFurModel extends GeoModel<OriginFurAnimatable> {
     }
     public Identifier getHurtSoundResource() {
         return Identifier.tryParse(JsonHelper.getString(json, "hurtSound", "null"));
-    }
-
-    @Override
-    public Identifier getAnimationResource(OriginFurAnimatable geoAnimatable) {
-        var id = Identifier.tryParse(JsonHelper.getString(json, "animation", "originalfur:animations/missing.animation.json"));
-        return id;
     }
 }

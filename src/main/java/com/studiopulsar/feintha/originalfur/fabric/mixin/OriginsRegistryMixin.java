@@ -30,24 +30,32 @@ public class OriginsRegistryMixin {
         private static void onRecievedOriginsMixin(Identifier[] ids, SerializableData.Instance[] origins, CallbackInfo ci, int i) throws IOException {
             var manager = MinecraftClient.getInstance().getResourceManager();
             String path = "furs";
-            Identifier id = new Identifier("origin", ids[i].getPath());
+            Identifier id = new Identifier("origins", ids[i].getPath());
+            if (!ids[i].getNamespace().contentEquals("origins")) {
+                var id_tmp = id;
+                id = ids[i];
+                System.out.println(id);
+                if (!OriginalFurClient.FUR_RESOURCES.containsKey(id)) {
+                    id = id_tmp;
+                }
+            }
             var fur = OriginalFurClient.FUR_RESOURCES.getOrDefault(id, null);
             if (fur == null) {
-                OriginalFurClient.FUR_REGISTRY.put(id.getPath(), new OriginalFurClient.OriginFur(JsonParser.parseString("{}").getAsJsonObject()));
+                OriginalFurClient.FUR_REGISTRY.put(id, new OriginalFurClient.OriginFur(JsonParser.parseString("{}").getAsJsonObject()));
             } else {
-                OriginalFurClient.FUR_REGISTRY.put(id.getPath(), new  OriginalFurClient.OriginFur(JsonParser.parseString(new String(fur.getInputStream().readAllBytes())).getAsJsonObject()));
+                OriginalFurClient.FUR_REGISTRY.put(id, new  OriginalFurClient.OriginFur(JsonParser.parseString(new String(fur.getInputStream().readAllBytes())).getAsJsonObject()));
             }
         }
         @Inject(method="lambda$receiveOriginList$4", at=@At(value="HEAD"))
         private static void onRecievedOriginsDefineMissingMixin(Identifier[] ids, SerializableData.Instance[] origins, CallbackInfo ci) throws IOException {
             var manager = MinecraftClient.getInstance().getResourceManager();
             String path = "furs";
-            Identifier id = new Identifier("origin", "empty");
+            Identifier id = new Identifier("origins", "empty");
             var fur = OriginalFurClient.FUR_RESOURCES.getOrDefault(id, null);
             if (fur == null) {
-                OriginalFurClient.FUR_REGISTRY.put(id.getPath(), new OriginalFurClient.OriginFur(JsonParser.parseString("{}").getAsJsonObject()));
+                OriginalFurClient.FUR_REGISTRY.put(id, new OriginalFurClient.OriginFur(JsonParser.parseString("{}").getAsJsonObject()));
             } else {
-                OriginalFurClient.FUR_REGISTRY.put(id.getPath(), new  OriginalFurClient.OriginFur(JsonParser.parseString(new String(fur.getInputStream().readAllBytes())).getAsJsonObject()));
+                OriginalFurClient.FUR_REGISTRY.put(id, new  OriginalFurClient.OriginFur(JsonParser.parseString(new String(fur.getInputStream().readAllBytes())).getAsJsonObject()));
             }
         }
     }
