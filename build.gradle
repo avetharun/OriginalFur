@@ -40,10 +40,15 @@ dependencies {
     modImplementation "maven.modrinth:origins:OdNHB7Bh"
     modImplementation "maven.modrinth:azurelib:D0bLIbTK"
     modImplementation "maven.modrinth:cardinal-components-api:HykM2Qyv"
-    modImplementation(files("libs/Apoli-1.20.1-2.9.0.jar"))
+    modImplementation(files(
+            "libs/Apoli-1.20.1-2.9.0.jar"
+    ))
     modCompileOnly "maven.modrinth:iris:URWeWMAt"
     modCompileOnly "maven.modrinth:extra-origins:spXxXXgx"
     modCompileOnly "maven.modrinth:origins-classes:EnGfmh9y"
+    modCompileOnly "maven.modrinth:bendy-lib:DFxVCaiC"
+    modCompileOnly "maven.modrinth:better-combat:MxaoPSMy"
+    modCompileOnly "maven.modrinth:playeranimator:cfkAgcOh"
     modCompileOnly(files(
             "libs/cardinal-components-base-5.2.1.jar",
             "libs/cardinal-components-block-5.2.1.jar",
@@ -54,7 +59,8 @@ dependencies {
             "libs/cardinal-components-scoreboard-5.2.1.jar",
             "libs/cardinal-components-world-5.2.1.jar",
             "libs/calio-v1.11.0.jar",
-            "libs/mixinextras-fabric-0.2.0-beta.8.jar"
+            "libs/mixinextras-fabric-0.2.0-beta.8.jar",
+
     ))
     annotationProcessor(files("libs/mixinextras-fabric-0.2.0-beta.8.jar"))
 }
@@ -100,6 +106,9 @@ jar {
     from("LICENSE") {
         rename { "${it}_${project.archivesBaseName}" }
     }
+}
+loom {
+    accessWidenerPath = file("src/main/resources/originfur.accesswidener")
 }
 
 // configure the maven publication

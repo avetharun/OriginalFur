@@ -6,6 +6,9 @@ import com.studiopulsar.feintha.originalfur.OriginFurAnimatable;
 import com.studiopulsar.feintha.originalfur.fabric.OriginFurModel;
 import mod.azure.azurelib.cache.object.*;
 import mod.azure.azurelib.renderer.GeoObjectRenderer;
+import net.bettercombat.api.EntityPlayer_BetterCombat;
+import net.bettercombat.api.client.BetterCombatClientEvents;
+import net.bettercombat.network.Packets;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
@@ -13,6 +16,7 @@ import net.fabricmc.fabric.api.renderer.v1.RendererAccess;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.render.RenderPhase;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.resource.Resource;
@@ -26,6 +30,7 @@ import java.util.LinkedHashMap;
 
 public class OriginalFurClient implements ClientModInitializer {
     public static class OriginFur extends GeoObjectRenderer<OriginFurAnimatable> {
+
 
         public void setPlayer(PlayerEntity e) {
             this.animatable.setPlayer(e);
@@ -72,7 +77,6 @@ public class OriginalFurClient implements ClientModInitializer {
             final String r_M = "\\/([A-Za-z0-9_.-]+)\\.json";
             @Override
             public void reload(ResourceManager manager) {
-
                 var resources = manager.findResources("furs", identifier -> identifier.getPath().endsWith(".json"));
                 for (var res : resources.keySet()) {
                     String itemName = res.getPath().substring(res.getPath().indexOf('/')+1, res.getPath().lastIndexOf('.'));
@@ -91,9 +95,7 @@ public class OriginalFurClient implements ClientModInitializer {
                     } else {
                         FUR_RESOURCES.put(id, resources.get(res));
                     }
-                    System.out.println(id);
                 }
-                System.out.println(FUR_RESOURCES.keySet());
             }
         });
     }

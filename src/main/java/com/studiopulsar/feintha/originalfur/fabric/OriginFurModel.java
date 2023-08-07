@@ -3,11 +3,15 @@ package com.studiopulsar.feintha.originalfur.fabric;
 import com.google.gson.JsonObject;
 import com.studiopulsar.feintha.originalfur.alib;
 import com.studiopulsar.feintha.originalfur.OriginFurAnimatable;
+import com.studiopulsar.feintha.originalfur.fabric.client.FurRenderFeature;
+import dev.kosmx.playerAnim.core.util.MathHelper;
+import dev.kosmx.playerAnim.core.util.Vec3f;
 import io.github.apace100.origins.origin.Origin;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceLinkedOpenHashMap;
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.cache.AzureLibCache;
 import mod.azure.azurelib.cache.object.GeoBone;
+import mod.azure.azurelib.core.animatable.model.CoreGeoBone;
 import mod.azure.azurelib.model.GeoModel;
 import mod.azure.azurelib.util.AzureLibUtil;
 import net.minecraft.client.model.ModelPart;
@@ -26,10 +30,45 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class OriginFurModel extends GeoModel<OriginFurAnimatable> {
     PlayerEntity entity;
-    JsonObject json;
+    public JsonObject json;
     public OriginFurModel(JsonObject json) {
         this.recompile(json);
     }
+
+    public Vec3f getPositionForBone(String bone) {
+        var b = getCachedGeoBone(bone);
+        if (b == null) { return Vec3f.ZERO;}
+        var pos = b.getModelPosition();
+        return new Vec3f((float) pos.x, (float) pos.y, (float) pos.z);
+    }
+    public Vec3d getPositionForBoneD(String bone) {
+        var b = getCachedGeoBone(bone);
+        if (b == null) { return Vec3d.ZERO;}
+        var pos = b.getModelPosition();
+        return new Vec3d((float) pos.x, (float) pos.y, (float) pos.z);
+    }
+
+    public GeoBone setPositionForBone(String bone_name, Vec3f dTransform) {
+        return setPositionForBone(bone_name, new Vec3d(dTransform.getX(), dTransform.getY(), dTransform.getZ()));
+    }
+    public GeoBone setModelPositionForBone(String bone_name, Vec3f dTransform) {
+        return setModelPositionForBone(bone_name, new Vec3d(dTransform.getX(), dTransform.getY(), dTransform.getZ()));
+    }
+
+    public GeoBone setRotationForBone(String bone_name, Vec3f dTransform) {
+        return setRotationForBone(bone_name, new Vec3d(dTransform.getX(), dTransform.getY(), dTransform.getZ()));
+    }
+    public GeoBone setRotationForBone(String bone_name, Vec3f dTransform, boolean iX, boolean iY, boolean iZ) {
+        return setRotationForBone(bone_name, new Vec3d(dTransform.getX(), dTransform.getY(), dTransform.getZ()), iX, iY, iZ);
+    }
+
+    public GeoBone translatePositionForBone(String bone_name, Vec3f dTransform) {
+        return translatePositionForBone(bone_name, new Vec3d(dTransform.getX(), dTransform.getY(), dTransform.getZ()));
+    }
+    public GeoBone translateRotationForBone(String bipedLeftLeg, Vec3f leftLeg) {
+        return translateRotationForBone(bipedLeftLeg, new Vec3d(leftLeg.getX(),leftLeg.getY(), leftLeg.getZ()));
+    }
+
     public enum VMP {
         leftArm, rightArm, rightSleeve, leftSleeve, rightLeg, leftLeg, rightPants, leftPants, hat, head, body, jacket;
 
@@ -45,6 +84,15 @@ public class OriginFurModel extends GeoModel<OriginFurAnimatable> {
     }
     public void preprocess(Origin origin, PlayerEntityRenderer playerRenderer, IPlayerEntityMixins playerEntity, ModelRootAccessor model) {
         getAnimationProcessor().getRegisteredBones().forEach(coreGeoBone -> {
+            GeoBone gB = (GeoBone) coreGeoBone;
+            switch (gB.getName().toLowerCase()){
+                case "left_arm", "leftarm"->alib.setPrivateMixinField(gB,"name", "bipedLeftArm");
+                case "right_arm","rightarm"->alib.setPrivateMixinField(gB,"name", "bipedRightArm");
+                case "left_leg","leftleg"->alib.setPrivateMixinField(gB,"name", "bipedLeftLeg");
+                case "right_leg","rightleg"->alib.setPrivateMixinField(gB,"name", "bipedRightLeg");
+                case "body","torso"->alib.setPrivateMixinField(gB,"name", "bipedBody");
+                case "head"->alib.setPrivateMixinField(gB,"name", "bipedHead");
+            }
             coreGeoBone.setHidden(false);
             coreGeoBone.setHidden(coreGeoBone.getName().endsWith("thin_only") && !model.originalFur$isSlim());
             if (coreGeoBone.isHidden()) {
@@ -86,11 +134,12 @@ public class OriginFurModel extends GeoModel<OriginFurAnimatable> {
         this.json = json;
         hiddenParts.clear();
         parseHiddenParts();
-        var id = getModelResource(null);
+        boneCache.clear();
+//        AzureLibCache.getBakedModels().remove(this.getModelResource(null));
         // Force cache this model! This is so getCachedGeoModel will not throw an exception unless the bone doesn't exist!
-        AzureLibCache.getBakedModels().put(id, this.getBakedModel(id));
+//        var bM = AzureLibCache.getBakedModels().put(this.getModelResource(null), this.getBakedModel(this.getModelResource(null)));
+//        assert bM != null;
         if (this.json.has("overrides") && this.json.get("overrides").isJsonArray()) {
-            System.out.println(this.json.get("overrides"));
             JsonHelper.getArray(this.json,"overrides").forEach(jsonElement -> {
                 var o = ResourceOverride.deserialize(jsonElement.getAsJsonObject());
                 overrides.add(o);
@@ -206,7 +255,6 @@ public class OriginFurModel extends GeoModel<OriginFurAnimatable> {
         }
         GeoBone b = this.getBone(bone_name).orElse(null);
         if (b == null) {
-            System.err.println("Bone " + bone_name + " was null when fetching via string (hash: " + hash + ")");
             return null;
         }
         boneCache.putAndMoveToFirst(hash, b);
@@ -228,7 +276,6 @@ public class OriginFurModel extends GeoModel<OriginFurAnimatable> {
     public final GeoBone setPositionForBone(String bone_name, Vec3d pos) {
         var b = this.getCachedGeoBone(bone_name);
         if (b == null) {
-            System.out.println("what the fuck.");
             return null;
         }
         b.setPosX((float)pos.x);
@@ -236,10 +283,17 @@ public class OriginFurModel extends GeoModel<OriginFurAnimatable> {
         b.setPosZ((float)pos.z);
         return (GeoBone) b;
     }
+    public final GeoBone setModelPositionForBone(String bone_name, Vec3d pos) {
+        var b = this.getCachedGeoBone(bone_name);
+        if (b == null) {
+            return null;
+        }
+        b.setModelPosition(new Vector3d(pos.x, pos.y, pos.z));
+        return (GeoBone) b;
+    }
     public final GeoBone translatePositionForBone(String bone_name, Vec3d pos) {
         var b = this.getCachedGeoBone(bone_name);
         if (b == null) {
-            System.out.println("what the fuck.");
             return null;
         }
         b.setPosX((float)pos.x + b.getPosX());
@@ -250,7 +304,6 @@ public class OriginFurModel extends GeoModel<OriginFurAnimatable> {
     public final GeoBone translateRotationForBone(String bone_name, Vec3d pos) {
         var b = this.getCachedGeoBone(bone_name);
         if (b == null) {
-            System.out.println("what the fuck.");
             return null;
         }
         b.setRotX((float)pos.x + b.getRotX());
@@ -261,7 +314,6 @@ public class OriginFurModel extends GeoModel<OriginFurAnimatable> {
     public final GeoBone setRotationForBone(String bone_name, Vec3d rot) {
         var b = this.getCachedGeoBone(bone_name);
         if (b == null) {
-            System.out.println("what the fuck.");
             return null;
         }
         b.setRotX((float)rot.x);
@@ -269,10 +321,19 @@ public class OriginFurModel extends GeoModel<OriginFurAnimatable> {
         b.setRotZ((float)rot.z);
         return (GeoBone) b;
     }
+    public final GeoBone setRotationForBone(String bone_name, Vec3d rot, boolean iX, boolean iY, boolean iZ) {
+        var b = this.getCachedGeoBone(bone_name);
+        if (b == null) {
+            return null;
+        }
+        b.setRotX((float)rot.x * (iX ? -1 : 1));
+        b.setRotY((float)rot.y * (iY ? -1 : 1));
+        b.setRotZ((float)rot.z * (iZ ? -1 : 1));
+        return (GeoBone) b;
+    }
     public final GeoBone setScaleForBone(String bone_name, Vec3d scale) {
         var b = this.getCachedGeoBone(bone_name);
         if (b == null) {
-            System.out.println("what the fuck.");
             return null;
         }
         b.setScaleX((float)scale.x);
@@ -281,7 +342,7 @@ public class OriginFurModel extends GeoModel<OriginFurAnimatable> {
         return (GeoBone) b;
     }
     public final GeoBone setTransformationForBone(String bone_name, Vec3d pos, Vec3d scale, Vec3d eulers){
-        setPositionForBone(bone_name, pos);
+        setModelPositionForBone(bone_name, pos);
         setRotationForBone(bone_name, eulers);
         return setScaleForBone(bone_name,scale);
 
@@ -291,6 +352,9 @@ public class OriginFurModel extends GeoModel<OriginFurAnimatable> {
         Vec3d scale = new Vec3d(part.xScale, part.yScale, part.zScale);
         Vec3d rott = new Vec3d(-part.pitch, -part.yaw, -part.roll);
         return setTransformationForBone(bone_name, pos, scale, rott);
+    }
+    public final GeoBone copyFromModelTransformation(String bone_name, FurRenderFeature.ModelTransformation part) {
+        return setTransformationForBone(bone_name, part.position, new Vec3d(1,1,1), part.rotation);
     }
     public final GeoBone copyFromMojangModelPart(String bone_name, ModelPart part, boolean inverted) {
         Vec3d pos = new Vec3d(part.pivotX, part.pivotY, part.pivotZ);
@@ -310,10 +374,7 @@ public class OriginFurModel extends GeoModel<OriginFurAnimatable> {
     }
     public final GeoBone copyRotFromMojangModelPart(String bone_name, ModelPart part, boolean invertedX, boolean invertedY, boolean invertedZ) {
         Vec3d rott = new Vec3d(-part.getTransform().pitch, -part.getTransform().yaw, -part.getTransform().roll);
-        if (invertedX) rott = rott.multiply(new Vec3d(-1,1,1));
-        if (invertedY) rott = rott.multiply(new Vec3d(1,-1,1));
-        if (invertedZ) rott = rott.multiply(new Vec3d(1,-1,1));
-        return setRotationForBone(bone_name,rott);
+        return setRotationForBone(bone_name,rott, invertedX, invertedY, invertedZ);
     }
     public final GeoBone copyRotFromMojangModelPart(String bone_name, ModelPart part) {
         Vec3d rott = new Vec3d(-part.pitch, -part.yaw, -part.roll);
@@ -322,7 +383,7 @@ public class OriginFurModel extends GeoModel<OriginFurAnimatable> {
     public final GeoBone copyPosFromMojangModelPart(String bone_name, ModelPart part) {
         var t = part.getTransform();
         Vec3d rott = new Vec3d(t.pivotX, t.pivotY, t.pivotZ);
-        return setPositionForBone(bone_name,rott);
+        return setModelPositionForBone(bone_name,rott);
 
     }
     public final GeoBone copyScaleFromMojangModelPart(String bone_name, ModelPart part) {

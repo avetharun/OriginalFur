@@ -10,7 +10,7 @@
   },
   "license": "unlicense",
   "icon": "assets/originalfur/icon.png",
-  "environment": "*",
+  "environment": "client",
   "entrypoints": {
     "client": [
       "com.studiopulsar.feintha.originalfur.fabric.client.OriginalFurClient"
@@ -28,5 +28,6 @@
     "minecraft": "${minecraft_version}",
     "origins": "*",
     "azurelib": "*"
-  }
+  },
+  "accessWidener": "originfur.accesswidener"
 }

@@ -9,7 +9,14 @@ import mod.azure.azurelib.core.animation.AnimationController;
 import mod.azure.azurelib.core.animation.RawAnimation;
 import mod.azure.azurelib.core.object.PlayState;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.model.ModelPart;
+import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.render.entity.model.AnimalModel;
+import net.minecraft.client.render.entity.model.BipedEntityModel;
+import net.minecraft.client.render.entity.model.PlayerEntityModel;
 import net.minecraft.entity.player.PlayerEntity;
+
+import java.util.List;
 
 public class OriginFurAnimatable implements GeoAnimatable {
     AnimatableInstanceCache cache = new SingletonAnimatableInstanceCache(this);

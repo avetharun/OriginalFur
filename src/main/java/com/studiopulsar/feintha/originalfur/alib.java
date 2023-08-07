@@ -343,8 +343,9 @@ public class alib {
     }
     public static <F,T> F setPrivateMixinField(T mixinType, String fieldName, F value) {
         try {
-            Field f = mixinType.getClass().getField(fieldName);
+            Field f = mixinType.getClass().getDeclaredField(fieldName);
             f.setAccessible(true);
+
             f.set(mixinType, value);
             //noinspection unchecked
             return (F)f.get(mixinType);
@@ -355,8 +356,8 @@ public class alib {
     public static <F,T> F getPrivateMixinField(T mixinType, String fieldName) {
         try {
             Field f = mixinType.getClass().getDeclaredField(fieldName);
-            //noinspection unchecked
             f.setAccessible(true);
+            //noinspection unchecked
             return (F) f.get(mixinType);
         } catch (NoSuchFieldException | IllegalAccessException e) {
             throw new RuntimeException(e);

@@ -155,8 +155,11 @@ public class PlayerEntityRendererMixin {
                     if (opt == null) {
                         opt = OriginalFurClient.FUR_REGISTRY.get(Identifier.of("origins", id.getPath()));
                         if (opt ==null) {
-                            System.out.println("Was null in preProcess mixin: " + id);
+                            System.out.println("[Origin Furs] Fur was null in preprocess mixin: " + id + ". This should NEVER happen! Report this to the devs!");
                             System.out.println(OriginalFurClient.FUR_REGISTRY.keySet());
+                            System.out.println("[Origin Furs] Listed all registered furs. Please include the previous line!");
+                            System.out.println("[Origin Furs] Please copy all mods, and this log file and create an issue:");
+                            System.out.println("[Origin Furs] https://github.com/avetharun/OriginalFur/issues/new");
                             return;
                         }
                     }
@@ -215,8 +218,11 @@ public class PlayerEntityRendererMixin {
                     if (opt == null) {
                         opt = OriginalFurClient.FUR_REGISTRY.get(Identifier.of("origins", id.getPath()));
                         if (opt ==null) {
-                            System.out.println("Was null in rendering mixin: " + id);
+                            System.out.println("[Origin Furs] Fur was null in render mixin: " + id + ". This should NEVER happen! Report this to the devs!");
                             System.out.println(OriginalFurClient.FUR_REGISTRY.keySet());
+                            System.out.println("[Origin Furs] Listed all registered furs. Please include the previous line!");
+                            System.out.println("[Origin Furs] Please copy all mods, and this log file and create an issue:");
+                            System.out.println("[Origin Furs] https://github.com/avetharun/OriginalFur/issues/new");
                             return;
                         }
                     }

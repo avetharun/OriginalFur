@@ -5,7 +5,8 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "OriginsRegistryMixin",
-    "OriginsRegistryMixin$OriginListMixin$ORIF"
+    "OriginsRegistryMixin$OriginListMixin$ORIF",
+    "PseudoPlayerAnimatorMixins$AnimationProcessorMixin"
   ],
   "client": [
     "ItemRendererMixin",
@@ -13,7 +14,8 @@
     "PlayerEntityMixin$ChangeElytraTextureMixin",
     "PlayerEntityRendererMixin",
     "PlayerEntityRendererMixin$LivingEntityRendererMixin$HidePlayerModelIfNeeded",
-    "PlayerEntityRendererMixin$PlayerEntityModel$RootModel$Mixin"
+    "PlayerEntityRendererMixin$PlayerEntityModel$RootModel$Mixin",
+    "PseudoBetterCombatMixins"
   ],
   "injectors": {
     "defaultRequire": 1
