@@ -8,6 +8,7 @@ import io.github.apace100.origins.origin.Origin;
 import io.github.apace100.origins.registry.ModComponents;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.network.OtherClientPlayerEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.Registries;
@@ -15,6 +16,7 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -23,6 +25,21 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Pseudo
 @Mixin(ClientPlayerEntity.class)
 public class PlayerEntityMixin implements IPlayerEntityMixins {
+    @Mixin(OtherClientPlayerEntity.class)
+    public static class OtherClientPlayerEntityMixin implements IPlayerEntityMixins{
+
+        @Unique
+        boolean betterCombat$isSwinging = false;
+        @Override
+        public void betterCombat$setSwinging(boolean value) {
+            betterCombat$isSwinging = value;
+        }
+        @Override
+        public boolean betterCombat$isSwinging() {
+            return betterCombat$isSwinging;
+        }
+
+    }
 
     @Pseudo
     @Mixin(AbstractClientPlayerEntity.class)

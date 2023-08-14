@@ -17,12 +17,17 @@ import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.InGameHud;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.RenderPhase;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -30,7 +35,22 @@ import java.util.LinkedHashMap;
 
 public class OriginalFurClient implements ClientModInitializer {
     public static class OriginFur extends GeoObjectRenderer<OriginFurAnimatable> {
-
+        public void renderBone(String name, MatrixStack poseStack, @Nullable VertexConsumerProvider bufferSource, @Nullable RenderLayer renderType, @Nullable VertexConsumer buffer, int packedLight) {
+            poseStack.push();
+            var b = this.getGeoModel().getBone(name).orElse(null);
+            if (b == null) {return;}
+            if (buffer == null) {buffer = bufferSource.getBuffer(renderType);}
+            var cubes = b.getCubes();
+            int packedOverlay = this.getPackedOverlay(animatable, 0.0F);
+            for (var child_bones : b.getChildBones()) {
+                cubes.addAll(child_bones.getCubes());
+            }
+            @Nullable VertexConsumer finalBuffer = buffer;
+            cubes.forEach(geoCube -> {
+                renderRecursively(poseStack, this.animatable, b, renderType, bufferSource, finalBuffer, false, MinecraftClient.getInstance().getTickDelta(), packedLight, packedOverlay, 1, 1, 1, 1);
+            });
+            poseStack.pop();
+        }
 
         public void setPlayer(PlayerEntity e) {
             this.animatable.setPlayer(e);

@@ -6,17 +6,25 @@
   "mixins": [
     "OriginsRegistryMixin",
     "OriginsRegistryMixin$OriginListMixin$ORIF",
-    "PseudoPlayerAnimatorMixins$AnimationProcessorMixin"
+    "PseudoPlayerAnimatorMixins$AnimationControllerMixin",
+    "PseudoPlayerAnimatorMixins$ModifierLayerMixin"
   ],
   "client": [
     "ItemRendererMixin",
     "PlayerEntityMixin",
     "PlayerEntityMixin$ChangeElytraTextureMixin",
+    "PlayerEntityMixin$OtherClientPlayerEntityMixin",
     "PlayerEntityRendererMixin",
     "PlayerEntityRendererMixin$LivingEntityRendererMixin$HidePlayerModelIfNeeded",
     "PlayerEntityRendererMixin$PlayerEntityModel$RootModel$Mixin",
-    "PseudoBetterCombatMixins"
+    "PseudoBetterCombatMixins",
+    "PseudoPlayerAnimatorMixins$AnimationApplierMixin",
+    "PseudoPlayerAnimatorMixins$AnimationMixin",
+    "PseudoPlayerAnimatorMixins$AnimationProcessorMixin",
+    "PseudoPlayerAnimatorMixins$AnimationStackMixin",
+    "PseudoPlayerAnimatorMixins$KeyframeAnimationMixin"
   ],
+  "mixinPriority": 99999,
   "injectors": {
     "defaultRequire": 1
   }

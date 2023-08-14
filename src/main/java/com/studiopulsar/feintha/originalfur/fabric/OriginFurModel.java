@@ -51,6 +51,9 @@ public class OriginFurModel extends GeoModel<OriginFurAnimatable> {
     public GeoBone setPositionForBone(String bone_name, Vec3f dTransform) {
         return setPositionForBone(bone_name, new Vec3d(dTransform.getX(), dTransform.getY(), dTransform.getZ()));
     }
+    public GeoBone setPivotForBone(String bone_name, Vec3f dTransform) {
+        return setPivotForBone(bone_name, new Vec3d(dTransform.getX(), dTransform.getY(), dTransform.getZ()));
+    }
     public GeoBone setModelPositionForBone(String bone_name, Vec3f dTransform) {
         return setModelPositionForBone(bone_name, new Vec3d(dTransform.getX(), dTransform.getY(), dTransform.getZ()));
     }
@@ -270,6 +273,7 @@ public class OriginFurModel extends GeoModel<OriginFurAnimatable> {
     public final GeoBone resetBone(String bone_name) {
         setPositionForBone(bone_name, new Vec3d(0,0,0));
         setRotationForBone(bone_name, new Vec3d(0,0,0));
+        setModelPositionForBone(bone_name, Vec3d.ZERO);
         return setScaleForBone(bone_name, new Vec3d(1,1,1));
     }
 
@@ -281,6 +285,16 @@ public class OriginFurModel extends GeoModel<OriginFurAnimatable> {
         b.setPosX((float)pos.x);
         b.setPosY((float)pos.y);
         b.setPosZ((float)pos.z);
+        return (GeoBone) b;
+    }
+    public final GeoBone setPivotForBone(String bone_name, Vec3d pos) {
+        var b = this.getCachedGeoBone(bone_name);
+        if (b == null) {
+            return null;
+        }
+        b.setPivotX((float)pos.x);
+        b.setPivotY((float)pos.y);
+        b.setPivotZ((float)pos.z);
         return (GeoBone) b;
     }
     public final GeoBone setModelPositionForBone(String bone_name, Vec3d pos) {
@@ -299,6 +313,15 @@ public class OriginFurModel extends GeoModel<OriginFurAnimatable> {
         b.setPosX((float)pos.x + b.getPosX());
         b.setPosY((float)pos.y + b.getPosY());
         b.setPosZ((float)pos.z + b.getPosZ());
+        return (GeoBone) b;
+    }
+    public final GeoBone translateModelPositionForBone(String bone_name, Vec3d pos) {
+        var b = this.getCachedGeoBone(bone_name);
+        if (b == null) {
+            return null;
+        }
+        Vector3d o = new Vector3d(pos.x + b.getPosX(), pos.z + b.getPosZ(), pos.z + b.getPosZ());
+        b.setModelPosition(o);
         return (GeoBone) b;
     }
     public final GeoBone translateRotationForBone(String bone_name, Vec3d pos) {
@@ -384,6 +407,12 @@ public class OriginFurModel extends GeoModel<OriginFurAnimatable> {
         var t = part.getTransform();
         Vec3d rott = new Vec3d(t.pivotX, t.pivotY, t.pivotZ);
         return setModelPositionForBone(bone_name,rott);
+
+    }
+    public final GeoBone copyPivotFromMojangModelPart(String bone_name, ModelPart part) {
+        var t = part.getTransform();
+        Vec3d rott = new Vec3d(t.pivotX, t.pivotY, t.pivotZ);
+        return setPivotForBone(bone_name,rott);
 
     }
     public final GeoBone copyScaleFromMojangModelPart(String bone_name, ModelPart part) {
