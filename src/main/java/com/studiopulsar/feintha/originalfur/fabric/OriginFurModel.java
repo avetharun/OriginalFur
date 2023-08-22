@@ -22,7 +22,9 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 import net.minecraft.util.math.Vec3d;
+import org.joml.Matrix4f;
 import org.joml.Vector3d;
+import org.joml.Vector4f;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -38,7 +40,7 @@ public class OriginFurModel extends GeoModel<OriginFurAnimatable> {
     public Vec3f getPositionForBone(String bone) {
         var b = getCachedGeoBone(bone);
         if (b == null) { return Vec3f.ZERO;}
-        var pos = b.getModelPosition();
+        var pos = b.getLocalPosition();
         return new Vec3f((float) pos.x, (float) pos.y, (float) pos.z);
     }
     public Vec3d getPositionForBoneD(String bone) {
@@ -51,6 +53,18 @@ public class OriginFurModel extends GeoModel<OriginFurAnimatable> {
     public GeoBone setPositionForBone(String bone_name, Vec3f dTransform) {
         return setPositionForBone(bone_name, new Vec3d(dTransform.getX(), dTransform.getY(), dTransform.getZ()));
     }
+    public GeoBone setWorldPositionForBone(String bone_name, Vec3f dTransform) {
+        return setWorldPositionForBone(bone_name, new Vec3d(dTransform.getX(), dTransform.getY(), dTransform.getZ()));
+    }
+
+    private GeoBone setWorldPositionForBone(String bone_name, Vec3d vec3d) {
+        var b = getCachedGeoBone(bone_name);
+        if (b == null) { return null;}
+        Vector4f vec = b.getWorldSpaceMatrix().mul(new Matrix4f()).transform(new Vector4f((float) vec3d.x, (float) vec3d.y, (float) vec3d.z, 1.0f));
+
+        return b;
+    }
+
     public GeoBone setPivotForBone(String bone_name, Vec3f dTransform) {
         return setPivotForBone(bone_name, new Vec3d(dTransform.getX(), dTransform.getY(), dTransform.getZ()));
     }
@@ -282,9 +296,10 @@ public class OriginFurModel extends GeoModel<OriginFurAnimatable> {
         if (b == null) {
             return null;
         }
-        b.setPosX((float)pos.x);
-        b.setPosY((float)pos.y);
-        b.setPosZ((float)pos.z);
+        b.setModelPosition(new Vector3d(pos.x, pos.y, pos.z));
+//        b.setPosX((float)pos.x);
+//        b.setPosY((float)pos.y);
+//        b.setPosZ((float)pos.z);
         return (GeoBone) b;
     }
     public final GeoBone setPivotForBone(String bone_name, Vec3d pos) {
@@ -310,10 +325,8 @@ public class OriginFurModel extends GeoModel<OriginFurAnimatable> {
         if (b == null) {
             return null;
         }
-        b.setPosX((float)pos.x + b.getPosX());
-        b.setPosY((float)pos.y + b.getPosY());
-        b.setPosZ((float)pos.z + b.getPosZ());
-        return (GeoBone) b;
+        var posOut = new Vec3d(pos.x + b.getPosX(), (float)pos.y + b.getPosY(),(float)pos.z + b.getPosZ());
+        return this.setPositionForBone(bone_name, posOut);
     }
     public final GeoBone translateModelPositionForBone(String bone_name, Vec3d pos) {
         var b = this.getCachedGeoBone(bone_name);
@@ -405,8 +418,8 @@ public class OriginFurModel extends GeoModel<OriginFurAnimatable> {
     }
     public final GeoBone copyPosFromMojangModelPart(String bone_name, ModelPart part) {
         var t = part.getTransform();
-        Vec3d rott = new Vec3d(t.pivotX, t.pivotY, t.pivotZ);
-        return setModelPositionForBone(bone_name,rott);
+        Vec3d rott = new Vec3d(t.pivotX / 16.0f, t.pivotY / 16.0f, t.pivotZ / 16.0f);
+        return setWorldPositionForBone(bone_name,rott);
 
     }
     public final GeoBone copyPivotFromMojangModelPart(String bone_name, ModelPart part) {

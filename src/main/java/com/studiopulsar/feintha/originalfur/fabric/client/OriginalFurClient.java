@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.studiopulsar.feintha.originalfur.OriginFurAnimatable;
 import com.studiopulsar.feintha.originalfur.fabric.OriginFurModel;
+import io.github.apace100.origins.origin.OriginRegistry;
 import mod.azure.azurelib.cache.object.*;
 import mod.azure.azurelib.renderer.GeoObjectRenderer;
 import net.bettercombat.api.EntityPlayer_BetterCombat;
@@ -30,8 +31,10 @@ import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 public class OriginalFurClient implements ClientModInitializer {
     public static class OriginFur extends GeoObjectRenderer<OriginFurAnimatable> {
@@ -116,6 +119,28 @@ public class OriginalFurClient implements ClientModInitializer {
                         FUR_RESOURCES.put(id, resources.get(res));
                     }
                 }
+                OriginRegistry.entries().forEach(identifierOriginEntry -> {
+                    var oID = identifierOriginEntry.getKey();
+                    var o = identifierOriginEntry.getValue();
+                    Identifier id = new Identifier("origins", oID.getPath());
+                    if (!oID.getNamespace().contentEquals("origins")) {
+                        var id_tmp = id;
+                        id = oID;
+                        if (!OriginalFurClient.FUR_RESOURCES.containsKey(id)) {
+                            id = id_tmp;
+                        }
+                    }
+                    var fur = OriginalFurClient.FUR_RESOURCES.getOrDefault(id, null);
+                    if (fur == null) {
+                        OriginalFurClient.FUR_REGISTRY.put(id, new OriginalFurClient.OriginFur(JsonParser.parseString("{}").getAsJsonObject()));
+                    } else {
+                        try {
+                            OriginalFurClient.FUR_REGISTRY.put(id, new  OriginFur(JsonParser.parseString(new String(fur.getInputStream().readAllBytes())).getAsJsonObject()));
+                        } catch (IOException e) {
+                            System.err.println(e.getMessage());
+                        }
+                    }
+                });
             }
         });
     }
