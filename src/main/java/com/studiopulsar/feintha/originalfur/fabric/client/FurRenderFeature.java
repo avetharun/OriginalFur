@@ -59,6 +59,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 public class FurRenderFeature <T extends LivingEntity, M extends BipedEntityModel<T>, A extends BipedEntityModel<T>> extends FeatureRenderer<T, M> {
     public FurRenderFeature(FeatureRendererContext<T, M> context) {
@@ -152,119 +153,50 @@ public class FurRenderFeature <T extends LivingEntity, M extends BipedEntityMode
             var lAP = eR.getModel().leftArmPose;
             var rAP = eR.getModel().rightArmPose;
             for (int i = 0; i < 2; i++) {
-
                 matrixStack.push();
                 matrixStack.multiply(new Quaternionf().rotateX(180 * MathHelper.RADIANS_PER_DEGREE));
-//                matrixStack.translate(0, -1.51f, 0);
+//                matrixStack.multiply(new Quaternionf().rotateY((-abstractClientPlayerEntity.getYaw(tickDelta)) * MathHelper.RADIANS_PER_DEGREE));
+                matrixStack.translate(0, -1.51f, 0);
+                MinecraftClient.getInstance().getProfiler().push("copy_mojmap");
+//
                 m.resetBone("bipedHead");
                 m.resetBone("bipedBody");
                 m.resetBone("bipedLeftArm");
                 m.resetBone("bipedRightArm");
-                m.resetBone("bipedLeftArm");
-                m.resetBone("bipedRightArm");
                 m.resetBone("bipedLeftLeg");
                 m.resetBone("bipedRightLeg");
-//                m.setScaleForBone("bipedLeftLeg", new Vec3d(1.075f, 1.01f, 1.075f));
-//                m.setScaleForBone("bipedRightLeg", new Vec3d(1.075f, 1.01f, 1.075f));
-                MinecraftClient.getInstance().getProfiler().push("copy_mojmap");
-                m.copyRotFromMojangModelPart("bipedHead", eR.getModel().head, true, false, false);
-                m.copyRotFromMojangModelPart("bipedBody", eR.getModel().body);
-                m.copyRotFromMojangModelPart("bipedLeftArm", eR.getModel().leftArm, true, false, false);
-                m.copyRotFromMojangModelPart("bipedRightArm", eR.getModel().rightArm, true, false, false);
-                m.copyRotFromMojangModelPart("bipedRightLeg", eR.getModel().leftLeg, true,false,false);
-                m.copyRotFromMojangModelPart("bipedLeftLeg", eR.getModel().rightLeg, true,false,false);
-                MinecraftClient.getInstance().getProfiler().pop();
-                MinecraftClient.getInstance().getProfiler().push("transform_manual");
-                boolean allowSneakingPose = true, translateVanilla = true;
-                if (translateVanilla) {
-                    m.copyPosFromMojangModelPart("bipedLeftArm", eR.getModel().rightArm);
-                    m.copyPosFromMojangModelPart("bipedRightArm", eR.getModel().leftArm);
-                    m.copyPosFromMojangModelPart("bipedLeftLeg", eR.getModel().leftLeg);
-                    m.copyPosFromMojangModelPart("bipedRightLeg", eR.getModel().rightLeg);
-                    m.copyPosFromMojangModelPart("bipedBody", eR.getModel().body);
-                    m.copyPosFromMojangModelPart("bipedHead", eR.getModel().head);
-                    m.translatePositionForBone("bipedRightArm", new Vec3d(-5, -2, 0));
-                    m.translatePositionForBone("bipedLeftArm", new Vec3d(5, -2, 0));
-                    m.translatePositionForBone("bipedLeftLeg", new Vec3d(-2,-12,0));
-                    m.translatePositionForBone("bipedRightLeg", new Vec3d(2,-12,0));
-                    m.translatePositionForBone("bipedBody", new Vec3d(0, -24.16, 0));
-                    m.translatePositionForBone("bipedHead", new Vec3d(0, -24.16, 0));
-                    m.translatePositionForBone("bipedLeftArm", new Vec3d(0, -24.16, 0));
-                    m.translatePositionForBone("bipedRightArm", new Vec3d(0, -24.16, 0));
-                    m.translatePositionForBone("bipedLeftLeg", new Vec3d(0, -24.16, 0));
-                    m.translatePositionForBone("bipedRightLeg", new Vec3d(0, -24.16, 0));
-                }
-                if (FabricLoader.getInstance().isModLoaded("player-animator") && ((IPlayer)abstractClientPlayerEntity).getAnimationStack().isActive()) {
-                    allowSneakingPose = false;
-                    matrixStack.translate(0,-1.51,0);
-//                    matrixStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180 * MathHelper.RADIANS_PER_DEGREE));
-                    IAnimation anim = ((IPlayer)abstractClientPlayerEntity).getAnimationStack();
-//                    anim.setupAnim(MinecraftClient.getInstance().getTickDelta());
-                    Vec3f bpLA = m.getPositionForBone("bipedBody");
-                    Vec3f bpRA = m.getPositionForBone("bipedHead");
-                    Vec3f bpLL = m.getPositionForBone("bipedLeftArm");
-                    Vec3f bpRL = m.getPositionForBone("bipedRightArm");
-                    Vec3f bpBD = m.getPositionForBone("bipedLeftLeg");
-                    Vec3f bpHD = m.getPositionForBone("bipedRightLeg");
-                    translateVanilla = false;
-                    var _1 = ((IPlayerAnimatorAnimApplier)anim).getPositionForBone("leftArm");
-                    var _2 = ((IPlayerAnimatorAnimApplier)anim).getPositionForBone("rightArm");
-                    var _3 = ((IPlayerAnimatorAnimApplier)anim).getPositionForBone("leftLeg");
-                    var _4 = ((IPlayerAnimatorAnimApplier)anim).getPositionForBone("rightLeg");
-                    var _5 = ((IPlayerAnimatorAnimApplier)anim).getPositionForBone("torso");
-                    var _6 = ((IPlayerAnimatorAnimApplier)anim).getPositionForBone("head");
-                    m.setPositionForBone("bipedLeftArm", _1);
-                    m.setPositionForBone("bipedRightArm", _2);
-                    m.setPositionForBone("bipedLeftLeg", _3);
-                    m.setPositionForBone("bipedRightLeg", _4);
-                    m.setPositionForBone("bipedBody", _5);
-                    m.setPositionForBone("bipedHead", _6);
-                    m.translatePositionForBone("bipedLeftArm", bpRA);
-                    m.translatePositionForBone("bipedRightArm", bpLA);
-                    m.translatePositionForBone("bipedLeftLeg", bpLL);
-                    m.translatePositionForBone("bipedRightLeg", bpRL);
-                    m.translatePositionForBone("bipedBody", bpBD);
-                    m.translatePositionForBone("bipedHead", bpHD);
-//                    m.translatePositionForBone("bipedRightArm", new Vec3d(5, 20, 0));
-//                    m.translatePositionForBone("bipedLeftLeg", new Vec3d(-2, 12, 0));
-//                    m.translatePositionForBone("bipedRightLeg", new Vec3d(2, 12, 0));
-                    if (FabricLoader.getInstance().isModLoaded("bettercombat") && (((MinecraftClient_BetterCombat)MinecraftClient.getInstance()).isWeaponSwingInProgress() || ((IPlayerEntityMixins)abstractClientPlayerEntity).betterCombat$isSwinging())) {
-                        m.translatePositionForBone("bipedLeftArm", new Vec3d(0, 0, 0));
-                        m.translatePositionForBone("bipedRightArm", new Vec3d(0, 0, 0));
-                    }
-//                    m.translatePositionForBone("bipedLeftLeg", new Vec3d(0, 10, 0));
-//                    m.translatePositionForBone("bipedRightLeg", new Vec3d(0, 10, 0));
 
-                    matrixStack.translate(-0.5, -0.5, -0.5);
-                    if (i == 0) {
-                        fur.renderBone("bipedHead", matrixStack, vertexConsumerProvider, RenderLayer.getEntityCutout(m.getTextureResource(a)), null, light);
-                        fur.renderBone("bipedBody", matrixStack, vertexConsumerProvider, RenderLayer.getEntityCutout(m.getTextureResource(a)), null, light);
-                        fur.renderBone("bipedRightArm", matrixStack, vertexConsumerProvider, RenderLayer.getEntityCutout(m.getTextureResource(a)), null, light);
-                        fur.renderBone("bipedLeftArm", matrixStack, vertexConsumerProvider, RenderLayer.getEntityCutout(m.getTextureResource(a)), null, light);
-                        fur.renderBone("bipedRightLeg", matrixStack, vertexConsumerProvider, RenderLayer.getEntityCutout(m.getTextureResource(a)), null, light);
-                        fur.renderBone("bipedLeftLeg", matrixStack, vertexConsumerProvider, RenderLayer.getEntityCutout(m.getTextureResource(a)), null, light);
-                    } else {
-                        fur.renderBone("bipedHead", matrixStack, vertexConsumerProvider, RenderLayer.getEntityTranslucentEmissive(m.getFullbrightTextureResource(a)), null, Integer.MAX_VALUE - 1);
-                        fur.renderBone("bipedBody", matrixStack, vertexConsumerProvider, RenderLayer.getEntityTranslucentEmissive(m.getFullbrightTextureResource(a)), null, Integer.MAX_VALUE - 1);
-                        fur.renderBone("bipedRightArm", matrixStack, vertexConsumerProvider, RenderLayer.getEntityTranslucentEmissive(m.getFullbrightTextureResource(a)), null, Integer.MAX_VALUE - 1);
-                        fur.renderBone("bipedLeftArm", matrixStack, vertexConsumerProvider, RenderLayer.getEntityTranslucentEmissive(m.getFullbrightTextureResource(a)), null, Integer.MAX_VALUE - 1);
-                        fur.renderBone("bipedRightLeg", matrixStack, vertexConsumerProvider, RenderLayer.getEntityTranslucentEmissive(m.getFullbrightTextureResource(a)), null, Integer.MAX_VALUE - 1);
-                        fur.renderBone("bipedLeftLeg", matrixStack, vertexConsumerProvider, RenderLayer.getEntityTranslucentEmissive(m.getFullbrightTextureResource(a)), null, Integer.MAX_VALUE - 1);
-                    }
-                    return;
-                }
-                if (abstractClientPlayerEntity.isInSneakingPose() && allowSneakingPose) {
-                    m.copyRotFromMojangModelPart("bipedBody", eR.getModel().body, true, false, false);
-                    m.translatePositionForBone("bipedBody", new Vec3d(0, -1.7327, -5.75));
-                    m.translatePositionForBone("bipedHead", new Vec3d(0, -4.2, 0));
-                    m.translatePositionForBone("bipedLeftArm", new Vec3d(0, -6.4, 0));
-                    m.translatePositionForBone("bipedRightArm", new Vec3d(0, -6.4, 0));
-                    m.translatePositionForBone("bipedRightLeg", new Vec3d(0, -0.3, -8));
-                    m.translatePositionForBone("bipedLeftLeg", new Vec3d(0, -0.3, -8));
-                }
-
-                MinecraftClient.getInstance().getProfiler().pop();
+                m.setRotationForBone("bipedHead", ((IMojModelPart)(Object)eR.getModel().head).originfurs$getRotation());
+                m.translatePositionForBone("bipedHead", ((IMojModelPart)(Object)eR.getModel().head).originfurs$getPosition().multiply(-16f));
+                m.translatePositionForBone("bipedBody", ((IMojModelPart)(Object)eR.getModel().body).originfurs$getPosition().multiply(-16f));
+                m.translatePositionForBone("bipedLeftArm", ((IMojModelPart)(Object)eR.getModel().leftArm).originfurs$getPosition().multiply(-16f));
+                m.translatePositionForBone("bipedRightArm", ((IMojModelPart)(Object)eR.getModel().rightArm).originfurs$getPosition().multiply(-16f));
+                m.translatePositionForBone("bipedLeftLeg", ((IMojModelPart)(Object)eR.getModel().rightLeg).originfurs$getPosition().multiply(-16f));
+                m.translatePositionForBone("bipedRightLeg", ((IMojModelPart)(Object)eR.getModel().leftLeg).originfurs$getPosition().multiply(-16f));
+                m.translatePositionForBone("bipedLeftArm", new Vec3d(5,2,0));
+                m.translatePositionForBone("bipedRightArm", new Vec3d(-5,2,0));
+//                m.translatePositionForBone("bipedLeftLeg", new Vec3d(-1.9999,11.98,0.02));
+                m.translatePositionForBone("bipedLeftLeg", new Vec3d(-2,12,0));
+                m.translatePositionForBone("bipedRightLeg", new Vec3d(2,12,0));
+//                PlayerEntityModel
+//                System.out.println(m.getPositionForBone("bipedRightArm").scale(16));
+//                MinecraftClient.getInstance().getProfiler().pop();
+//                MinecraftClient.getInstance().getProfiler().push("transform_manual");
+//                boolean allowSneakingPose = true, translateVanilla = true;
+//
+//                MinecraftClient.getInstance().getProfiler().pop();
                 matrixStack.translate(-0.5, -0.5, -0.5);
+                m.setRotationForBone("bipedBody", ((IMojModelPart)(Object)eR.getModel().body).originfurs$getRotation());
+                m.invertRotForPart("bipedBody", false, false, false);
+                m.setRotationForBone("bipedLeftArm", ((IMojModelPart)(Object)eR.getModel().leftArm).originfurs$getRotation());
+                m.setRotationForBone("bipedRightArm", ((IMojModelPart)(Object)eR.getModel().rightArm).originfurs$getRotation());
+                m.setRotationForBone("bipedLeftLeg", ((IMojModelPart)(Object)eR.getModel().rightLeg).originfurs$getRotation());
+                m.setRotationForBone("bipedRightLeg", ((IMojModelPart)(Object)eR.getModel().leftLeg).originfurs$getRotation());
+                m.invertRotForPart("bipedHead", false, true, true);
+                m.invertRotForPart("bipedRightArm", false, true, true);
+                m.invertRotForPart("bipedLeftArm", false, true, true);
+                m.invertRotForPart("bipedRightLeg", false, true, true);
+                m.invertRotForPart("bipedLeftLeg", false, true, true);
                 MinecraftClient.getInstance().getProfiler().push("render");
                 if (i == 0) {
                     fur.render(matrixStack, a, vertexConsumerProvider, RenderLayer.getEntityCutout(m.getTextureResource(a)), null, light);
@@ -274,8 +206,8 @@ public class FurRenderFeature <T extends LivingEntity, M extends BipedEntityMode
 
                 MinecraftClient.getInstance().getProfiler().pop();
                 MinecraftClient.getInstance().getProfiler().pop();
-                m.popScl("bipedLeftLeg");
-                m.popScl("bipedRightLeg");
+//                m.popScl("bipedLeftLeg");
+//                m.popScl("bipedRightLeg");
                 matrixStack.pop();
             }
         }

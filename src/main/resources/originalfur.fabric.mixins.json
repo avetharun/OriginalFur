@@ -11,6 +11,7 @@
   ],
   "client": [
     "ItemRendererMixin",
+    "Mojang_ModelPartMixin",
     "PlayerEntityMixin",
     "PlayerEntityMixin$ChangeElytraTextureMixin",
     "PlayerEntityMixin$OtherClientPlayerEntityMixin",

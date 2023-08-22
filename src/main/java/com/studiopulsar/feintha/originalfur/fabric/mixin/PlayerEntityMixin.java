@@ -43,22 +43,15 @@ public class PlayerEntityMixin implements IPlayerEntityMixins {
 
     @Pseudo
     @Mixin(AbstractClientPlayerEntity.class)
-    public static class ChangeElytraTextureMixin{
+    public static class ChangeElytraTextureMixin implements IPlayerEntityMixins{
         @Inject(method="getElytraTexture", at=@At("JUMP"), cancellable = true)
         void getElytraTextureMixin(CallbackInfoReturnable<Identifier> cir) {
-
-            PlayerOriginComponent c = (PlayerOriginComponent) ModComponents.ORIGIN.get(this);
-            var g = c.getOrigins().values().stream().findFirst();
-            if (g.isEmpty()) {return;}
-            Identifier id = g.get().getIdentifier();
-            var fur = OriginalFurClient.FUR_REGISTRY.get(id.getPath());
-            if (fur == null) {return;}
-            OriginFurModel m = (OriginFurModel) fur.getGeoModel();
+            OriginFurModel m = originalFur$getCurrentModel();
             if (m == null) {return;}
-            var eT = m.getElytraTexture();
             if (!m.hasCustomElytraTexture()) {
                 return;
             }
+            var eT = m.getElytraTexture();
             cir.setReturnValue(eT);
             cir.cancel();
         }
@@ -68,9 +61,19 @@ public class PlayerEntityMixin implements IPlayerEntityMixins {
     public OriginFurModel originalFur$getCurrentModel() {
         var origin = originalFur$currentOrigins()[0];
         Identifier id = origin.getIdentifier();
-        var fur = OriginalFurClient.FUR_REGISTRY.get(id.getPath());
-        if (fur == null) {return null;}
-        return (OriginFurModel) fur.getGeoModel();
+        var opt = OriginalFurClient.FUR_REGISTRY.get(id);
+        if (opt == null) {
+            opt = OriginalFurClient.FUR_REGISTRY.get(Identifier.of("origins", id.getPath()));
+            if (opt ==null) {
+                System.out.println("[Origin Furs] Fur was null in entity mixin: " + id + ". This should NEVER happen! Report this to the devs!");
+                System.out.println(OriginalFurClient.FUR_REGISTRY.keySet());
+                System.out.println("[Origin Furs] Listed all registered furs. Please include the previous line!");
+                System.out.println("[Origin Furs] Please copy all mods, and this log file and create an issue:");
+                System.out.println("[Origin Furs] https://github.com/avetharun/OriginalFur/issues/new");
+            }
+            return null;
+        }
+        return (OriginFurModel) opt.getGeoModel();
     }
 
     @Inject(method="applyDamage", at=@At("TAIL"))
