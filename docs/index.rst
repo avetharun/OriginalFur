@@ -11,18 +11,20 @@ Optionally, if you want a specific model to not override origins with the same n
 
 `assets/some_namespace/furs/namespace.origin_name.json`
 
+
+Note: Using the keyword `orif-defaults` for namespaces for a new fur will NOT override existing ones!
 Full json file example
 ::
   {
     
-    "model": "originalfur:geo/custommodel.geo.json",
-    "texture": "originalfur:textures/custom/customorigin.png",
-    "fullbrightTexture": "originalfur:textures/custom/customorigin_emission.png",
-    "animation": "originalfur:animations/custommodel.animation.json",
-    "elytraTexture": "originalfur:textures/custom/custom_elytra.png"
+    "model": "some_namespace:geo/custommodel.geo.json",
+    "texture": "some_namespace:textures/custom/customorigin.png",
+    "fullbrightTexture": "some_namespace:textures/custom/customorigin_emission.png",
+    "animation": "some_namespace:animations/custommodel.animation.json",
+    "elytraTexture": "some_namespace:textures/custom/custom_elytra.png"
     "playerInvisible": true,
-    "overlay": "originalfur:textures/custom/skin_overlay.png",
-    "emissive_overlay": "originalfur:textures/custom/emissive_skin_overlay.png",
+    "overlay": "some_namespace:textures/custom/skin_overlay.png",
+    "emissive_overlay": "some_namespace:textures/custom/emissive_skin_overlay.png",
     "hidden": [
       "leftArm","rightArm", "body", "jacket", "head", "hat", "leftLeg", "rightLeg", "leftPants", "rightPants"
     ]
