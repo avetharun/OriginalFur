@@ -5,11 +5,11 @@ Origin Fur - Origin Extension
 Adding custom models
 ------
 
-Custom model path: `assets/originalfur/furs/origin_name.json`
+Custom model path: `assets/some_namespace/furs/origin_name.json`
 
-Optionally, if you want a specific model to not override origins with the same name (conflicting names) you can append your origin's namespace, as follows:
+Optionally, if you want a specific model to not override origins with the same name (conflicting names, eg if Origin pack opa uses a name called "phantom" and so does Origin Pack originb, you can do opa.phantom and originb.phantom ) you can append your origin's namespace, as follows:
 
-`assets/originalfur/furs/namespace.origin_name.json`
+`assets/some_namespace/furs/namespace.origin_name.json`
 
 Full json file example
 ::
