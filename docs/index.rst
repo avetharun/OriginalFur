@@ -11,6 +11,8 @@ Optionally, if you want a specific model to not override origins with the same n
 
 `assets/some_namespace/furs/namespace.origin_name.json`
 
+When creating a new model, make sure if cubes are zero-width (flat on any axis) ONE of the faces is fully transparent. 
+This is because translucency is supported, and can cause clipping if this change isn't made.
 
 Note: Using the keyword `orif-defaults` for namespaces for a new fur will NOT override existing ones!
 Full json file example
