@@ -1,7 +1,0 @@
-{
-  "model": "originalfur:geo/avian.geo.json",
-  "texture": "originalfur:textures/avian/avian.png",
-  "animation": "originalfur:animations/avian.animation.json",
-  "elytraTexture": "originalfur:textures/avian/avian_elytra.png",
-  "overlay": "originalfur:textures/avian/avian_skin.png"
-}

@@ -22,6 +22,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.Arrays;
+
 @Pseudo
 @Mixin(ClientPlayerEntity.class)
 public class PlayerEntityMixin implements IPlayerEntityMixins {
@@ -59,21 +61,33 @@ public class PlayerEntityMixin implements IPlayerEntityMixins {
 
     @Override
     public OriginFurModel originalFur$getCurrentModel() {
-        var origin = originalFur$currentOrigins()[0];
-        Identifier id = origin.getIdentifier();
-        var opt = OriginalFurClient.FUR_REGISTRY.get(id);
-        if (opt == null) {
-            opt = OriginalFurClient.FUR_REGISTRY.get(Identifier.of("origins", id.getPath()));
-            if (opt ==null) {
-                System.out.println("[Origin Furs] Fur was null in entity mixin: " + id + ". This should NEVER happen! Report this to the devs!");
-                System.out.println(OriginalFurClient.FUR_REGISTRY.keySet());
-                System.out.println("[Origin Furs] Listed all registered furs. Please include the previous line!");
-                System.out.println("[Origin Furs] Please copy all mods, and this log file and create an issue:");
-                System.out.println("[Origin Furs] https://github.com/avetharun/OriginalFur/issues/new");
+        var cO = originalFur$currentOrigins();
+        if (cO.length == 0) {return OriginFurModel.NULL_OR_EMPTY_MODEL;}
+        try {
+            var origin = cO[0];
+            Identifier id = origin.getIdentifier();
+            var opt = OriginalFurClient.FUR_REGISTRY.get(id);
+            if (opt == null) {
+                opt = OriginalFurClient.FUR_REGISTRY.get(Identifier.of("origins", id.getPath()));
+                if (opt == null) {
+                    System.out.println("[Origin Furs] Fur was null in entity mixin: " + id + ". This should NEVER happen! Report this to the devs!");
+                    System.out.println(OriginalFurClient.FUR_REGISTRY.keySet());
+                    System.out.println("[Origin Furs] Listed all registered furs. Please include the previous line!");
+                    System.out.println("[Origin Furs] Please copy all mods, and this log file and create an issue:");
+                    System.out.println("[Origin Furs] https://github.com/avetharun/OriginalFur/issues/new");
+                }
+                return null;
             }
-            return null;
+            return (OriginFurModel) opt.getGeoModel();
+        } catch (IndexOutOfBoundsException IOBE) {
+            System.err.println("[Origin Furs] Something very wrong happened!");
+            System.err.println(OriginalFurClient.FUR_REGISTRY.keySet());
+            System.err.println(Arrays.toString(originalFur$currentOrigins()));
+            System.err.println("[Origin Furs] Listed all registered furs. Please include the previous line!");
+            System.err.println("[Origin Furs] Please copy all mods, and this log file and create an issue:");
+            System.err.println("[Origin Furs] https://github.com/avetharun/OriginalFur/issues/new");
+            throw new RuntimeException(IOBE.fillInStackTrace().toString());
         }
-        return (OriginFurModel) opt.getGeoModel();
     }
 
     @Inject(method="applyDamage", at=@At("TAIL"))

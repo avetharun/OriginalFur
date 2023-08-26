@@ -1,6 +1,7 @@
 package com.studiopulsar.feintha.originalfur.fabric;
 
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.studiopulsar.feintha.originalfur.alib;
 import com.studiopulsar.feintha.originalfur.OriginFurAnimatable;
 import com.studiopulsar.feintha.originalfur.fabric.client.FurRenderFeature;
@@ -8,6 +9,7 @@ import com.studiopulsar.feintha.originalfur.fabric.client.IMojModelPart;
 import com.studiopulsar.feintha.originalfur.fabric.client.OriginalFurClient;
 import dev.kosmx.playerAnim.core.util.MathHelper;
 import dev.kosmx.playerAnim.core.util.Vec3f;
+import io.github.apace100.apoli.power.PowerTypeRegistry;
 import io.github.apace100.origins.origin.Origin;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceLinkedOpenHashMap;
 import mod.azure.azurelib.AzureLib;
@@ -17,13 +19,16 @@ import mod.azure.azurelib.core.animatable.model.CoreGeoBone;
 import mod.azure.azurelib.model.GeoModel;
 import mod.azure.azurelib.util.AzureLibUtil;
 import net.minecraft.client.model.ModelPart;
+import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.PlayerEntityRenderer;
 import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.util.Identifier;
@@ -39,6 +44,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
 public class OriginFurModel extends GeoModel<OriginFurAnimatable> {
+    public static final OriginFurModel NULL_OR_EMPTY_MODEL = new OriginFurModel(JsonParser.parseString("{}").getAsJsonObject());
     PlayerEntity entity;
     public JsonObject json;
     public OriginFurModel(JsonObject json) {
@@ -107,23 +113,27 @@ public class OriginFurModel extends GeoModel<OriginFurAnimatable> {
     public void markDirty() {
         dirty = true;
     }
-    public void preprocess(Origin origin, PlayerEntityRenderer playerRenderer, IPlayerEntityMixins playerEntity, ModelRootAccessor model) {
+    public void preprocess(Origin origin, PlayerEntityRenderer playerRenderer, IPlayerEntityMixins playerEntity, ModelRootAccessor model, AbstractClientPlayerEntity abstractClientPlayerEntity) {
         getAnimationProcessor().getRegisteredBones().forEach(coreGeoBone -> {
-            GeoBone gB = (GeoBone) coreGeoBone;
-            switch (gB.getName().toLowerCase()){
-                case "left_arm", "leftarm"->alib.setPrivateMixinField(gB,"name", "bipedLeftArm");
-                case "right_arm","rightarm"->alib.setPrivateMixinField(gB,"name", "bipedRightArm");
-                case "left_leg","leftleg"->alib.setPrivateMixinField(gB,"name", "bipedLeftLeg");
-                case "right_leg","rightleg"->alib.setPrivateMixinField(gB,"name", "bipedRightLeg");
-                case "body","torso"->alib.setPrivateMixinField(gB,"name", "bipedBody");
-                case "head"->alib.setPrivateMixinField(gB,"name", "bipedHead");
-            }
             coreGeoBone.setHidden(false);
             coreGeoBone.setHidden(coreGeoBone.getName().endsWith("thin_only") && !model.originalFur$isSlim());
             if (coreGeoBone.isHidden()) {
                 return;
             }
             coreGeoBone.setHidden(coreGeoBone.getName().endsWith("wide_only") && model.originalFur$isSlim());
+            if (coreGeoBone.isHidden()) {return;}
+            coreGeoBone.setHidden(coreGeoBone.getName().contains("elytra_hides") &&
+                    (origin.hasPowerType(PowerTypeRegistry.get(new Identifier("origins:elytra")))
+                            || abstractClientPlayerEntity.getEquippedStack(EquipmentSlot.CHEST).isOf(Items.ELYTRA)));
+            if (coreGeoBone.isHidden()) {return;}
+            coreGeoBone.setHidden(coreGeoBone.getName().contains("helmet_hides") && !abstractClientPlayerEntity.getEquippedStack(EquipmentSlot.HEAD).isEmpty());
+            if (coreGeoBone.isHidden()) {return;}
+            coreGeoBone.setHidden(coreGeoBone.getName().contains("chestplate_hides") && !abstractClientPlayerEntity.getEquippedStack(EquipmentSlot.CHEST).isEmpty());
+            if (coreGeoBone.isHidden()) {return;}
+            coreGeoBone.setHidden(coreGeoBone.getName().contains("leggings_hides") && !abstractClientPlayerEntity.getEquippedStack(EquipmentSlot.LEGS).isEmpty());
+            if (coreGeoBone.isHidden()) {return;}
+            coreGeoBone.setHidden(coreGeoBone.getName().contains("boots_hides") && !abstractClientPlayerEntity.getEquippedStack(EquipmentSlot.FEET).isEmpty());
+            if (coreGeoBone.isHidden()) {return;}
         });
     }
     public void preRender$mixinOnly(PlayerEntity player) {
@@ -489,9 +499,9 @@ public class OriginFurModel extends GeoModel<OriginFurAnimatable> {
 //                public GeoModel setTransformationForBone(String bone_name, Vec3d pos, Vec3d scale, Quaterniond quaternion){}
     private static class ResourceOverride {
     public NbtElement requirements;
-    public Identifier textureResource = Identifier.tryParse("originalfur:textures/missing.png");
-    public Identifier modelResource = Identifier.tryParse("originalfur:geo/missing.geo.json");
-    public Identifier animationResource = Identifier.tryParse("originalfur:animations/missing.animation.json");
+    public Identifier textureResource = Identifier.tryParse("orif-defaults:textures/missing.png");
+    public Identifier modelResource = Identifier.tryParse("orif-defaults:geo/missing.geo.json");
+    public Identifier animationResource = Identifier.tryParse("orif-defaults:animations/missing.animation.json");
         public float weight;
         private static ResourceOverride deserializeBase(JsonObject object, ResourceOverride r) {
             r.requirements = alib.json2NBT(object.get("condition"));
@@ -500,9 +510,9 @@ public class OriginFurModel extends GeoModel<OriginFurAnimatable> {
         }
         public static ResourceOverride deserialize(JsonObject object) {
             var r = deserializeBase(object, new ResourceOverride());
-            r.textureResource = Identifier.tryParse(JsonHelper.getString(object, "texture", "originalfur:textures/missing.png"));
-            r.modelResource = Identifier.tryParse(JsonHelper.getString(object, "model", "originalfur:geo/missing.geo.json"));
-            r.animationResource = Identifier.tryParse(JsonHelper.getString(object, "animation", "originalfur:animations/missing.animation.json"));
+            r.textureResource = Identifier.tryParse(JsonHelper.getString(object, "texture", "orif-defaults:textures/missing.png"));
+            r.modelResource = Identifier.tryParse(JsonHelper.getString(object, "model", "orif-defaults:geo/missing.geo.json"));
+            r.animationResource = Identifier.tryParse(JsonHelper.getString(object, "animation", "orif-defaults:animations/missing.animation.json"));
             return r;
         }
     }
@@ -577,13 +587,13 @@ public class OriginFurModel extends GeoModel<OriginFurAnimatable> {
     }
     ResourceOverride currentOverride = new ResourceOverride();
     public static Identifier dMR(JsonObject json) {
-        return Identifier.tryParse(JsonHelper.getString(json, "model", "originalfur:geo/missing.geo.json"));
+        return Identifier.tryParse(JsonHelper.getString(json, "model", "orif-defaults:geo/missing.geo.json"));
     }
     public static Identifier dTR(JsonObject json) {
-        return Identifier.tryParse(JsonHelper.getString(json, "texture", "originalfur:textures/missing.png"));
+        return Identifier.tryParse(JsonHelper.getString(json, "texture", "orif-defaults:textures/missing.png"));
     }
     public static Identifier dAR(JsonObject json) {
-        return Identifier.tryParse(JsonHelper.getString(json, "animation", "originalfur:animations/missing.animation.json"));
+        return Identifier.tryParse(JsonHelper.getString(json, "animation", "orif-defaults:animations/missing.animation.json"));
     }
     @Override
     public Identifier getModelResource(OriginFurAnimatable geoAnimatable) {
@@ -598,7 +608,7 @@ public class OriginFurModel extends GeoModel<OriginFurAnimatable> {
         return dAR(json);
     }
     public Identifier getFullbrightTextureResource(OriginFurAnimatable geoAnimatable) {
-        var id = Identifier.tryParse(JsonHelper.getString(json, "fullbrightTexture", "originalfur:textures/missing.png"));
+        var id = Identifier.tryParse(JsonHelper.getString(json, "fullbrightTexture", "orif-defaults:textures/missing.png"));
         return id;
     }
     public boolean hasCustomElytraTexture() {

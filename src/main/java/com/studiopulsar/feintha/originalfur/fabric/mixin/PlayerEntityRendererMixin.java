@@ -142,10 +142,8 @@ public class PlayerEntityRendererMixin {
                 shift = At.Shift.BEFORE))
         private void renderPreProcessMixin(T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci){
             if (livingEntity instanceof AbstractClientPlayerEntity abstractClientPlayerEntity) {
-                IPlayerEntityMixins m = this;
                 isInvisible = false;
                 PlayerOriginComponent c = (PlayerOriginComponent) ModComponents.ORIGIN.get(abstractClientPlayerEntity);
-                var mod = (PlayerEntityModel)this.getModel();
                 for (var layer : OriginLayers.getLayers()) {
                     var origin = c.getOrigin(layer);
                     if (origin == null) {return;}
@@ -242,6 +240,7 @@ public class PlayerEntityRendererMixin {
                         this.model.render(matrixStack, vertexConsumerProvider.getBuffer(l), i, p, 1, 1, 1, bl2 ? 0.15F : 1.0F);
                     }
                     if ( emissiveTexture != null) {
+
                         RenderLayer l = RenderLayer.getEntityTranslucentEmissive(emissiveTexture);
                         this.model.render(matrixStack, vertexConsumerProvider.getBuffer(l), i, p, 1, 1, 1, bl2 ? 0.15F : 1.0F);
                     }

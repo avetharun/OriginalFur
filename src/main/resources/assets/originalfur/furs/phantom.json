@@ -1,9 +1,0 @@
-{
-  "model": "originalfur:geo/phantom.geo.json",
-  "texture": "originalfur:textures/phantom/phantom.png",
-  "fullbrightTexture": "originalfur:textures/phantom/phantom_eyes.png",
-  "animation": "originalfur:animations/phantom.animation.json",
-  "playerInvisible": true,
-  "hurtSound": "entity.phantom.hurt",
-  "elytraTexture": "originalfur:textures/phantom/phantom_elytra.png"
-}

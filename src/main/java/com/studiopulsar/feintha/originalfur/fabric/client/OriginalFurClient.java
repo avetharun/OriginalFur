@@ -62,7 +62,6 @@ public class OriginalFurClient implements ClientModInitializer {
             if (player instanceof ClientPlayerEntity cPE && player instanceof IPlayerEntityMixins iPE) {
                 var m = iPE.originalFur$getCurrentModel();
                 if (m == null) {
-                    System.out.println("?????");
                     return;
                 }
                 var lP = m.getLeftOffset();
@@ -147,6 +146,10 @@ public class OriginalFurClient implements ClientModInitializer {
                     var p = itemName.split("\\.");
                     if (p.length > 1) {
                         id = Identifier.of(p[0], p[1]);
+                    }
+                    if (!res.getNamespace().contentEquals("orif-defaults")) {
+                        FUR_REGISTRY.remove(id);
+                        FUR_RESOURCES.remove(id);
                     }
                     if (FUR_REGISTRY.containsKey(id)) {
                         OriginFurModel m = (OriginFurModel) FUR_REGISTRY.get(id).getGeoModel();

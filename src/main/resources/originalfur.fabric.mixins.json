@@ -4,6 +4,7 @@
   "package": "com.studiopulsar.feintha.originalfur.fabric.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "GeoBoneMixin",
     "OriginsRegistryMixin",
     "OriginsRegistryMixin$OriginListMixin$ORIF",
     "PseudoPlayerAnimatorMixins$AnimationControllerMixin",
