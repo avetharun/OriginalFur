@@ -11,6 +11,12 @@ Optionally, if you want a specific model to not override origins with the same n
 
 `assets/some_namespace/furs/namespace.origin_name.json`
 
+If your origin is in a subfolder of origins, for example the below image, you NEED to use a namespace! Subfolders work as namespaces, so roiraces.impact1.elf.json would be used for the below image
+
+.. image:: https://user-images.githubusercontent.com/34732532/267094238-b3b796dc-29ac-4c52-9bfb-d304c2326b13.png
+  :width: 255
+  :alt: Alternative text
+
 When creating a new model, make sure if cubes are zero-width (flat on any axis) ONE of the faces is fully transparent. 
 This is because translucency is supported, and can cause clipping if this change isn't made.
 
