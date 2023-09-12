@@ -149,18 +149,7 @@ public class PlayerEntityRendererMixin {
                     if (origin == null) {return;}
                     MinecraftClient.getInstance().getProfiler().push("originalfurs:" + origin.getIdentifier().getPath());
                     Identifier id = origin.getIdentifier();
-                    var opt = OriginalFurClient.FUR_REGISTRY.get(id);
-                    if (opt == null) {
-                        opt = OriginalFurClient.FUR_REGISTRY.get(Identifier.of("origins", id.getPath()));
-                        if (opt ==null) {
-                            System.out.println("[Origin Furs] Fur was null in preprocess mixin: " + id + ". This should NEVER happen! Report this to the devs!");
-                            System.out.println(OriginalFurClient.FUR_REGISTRY.keySet());
-                            System.out.println("[Origin Furs] Listed all registered furs. Please include the previous line!");
-                            System.out.println("[Origin Furs] Please copy all mods, and this log file and create an issue:");
-                            System.out.println("[Origin Furs] https://github.com/avetharun/OriginalFur/issues/new");
-                            return;
-                        }
-                    }
+                    var opt = ((IPlayerEntityMixins)abstractClientPlayerEntity).originalFur$getCurrentFur();
                     OriginFurModel m_Model = (OriginFurModel) opt.getGeoModel();
 
                     m_Model.preRender$mixinOnly(abstractClientPlayerEntity);
@@ -212,18 +201,7 @@ public class PlayerEntityRendererMixin {
                     }
                     MinecraftClient.getInstance().getProfiler().push("originalfurs:" + origin.getIdentifier().getPath());
                     Identifier id = origin.getIdentifier();
-                    var opt = OriginalFurClient.FUR_REGISTRY.get(id);
-                    if (opt == null) {
-                        opt = OriginalFurClient.FUR_REGISTRY.get(Identifier.of("origins", id.getPath()));
-                        if (opt ==null) {
-                            System.out.println("[Origin Furs] Fur was null in render mixin: " + id + ". This should NEVER happen! Report this to the devs!");
-                            System.out.println(OriginalFurClient.FUR_REGISTRY.keySet());
-                            System.out.println("[Origin Furs] Listed all registered furs. Please include the previous line!");
-                            System.out.println("[Origin Furs] Please copy all mods, and this log file and create an issue:");
-                            System.out.println("[Origin Furs] https://github.com/avetharun/OriginalFur/issues/new");
-                            return;
-                        }
-                    }
+                    var opt = ((IPlayerEntityMixins) aCPE).originalFur$getCurrentFur();
                     var model = (ModelRootAccessor)(PlayerEntityModel<?>)this.getModel();
                     OriginFurModel m_Model = (OriginFurModel) opt.getGeoModel();
                     var overlayTexture = m_Model.getOverlayTexture(model.originalFur$isSlim());

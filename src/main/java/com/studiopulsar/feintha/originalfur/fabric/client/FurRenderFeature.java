@@ -97,33 +97,10 @@ public class FurRenderFeature <T extends LivingEntity, M extends BipedEntityMode
         if (entity instanceof AbstractClientPlayerEntity abstractClientPlayerEntity) {
             if (abstractClientPlayerEntity.isInvisible() || abstractClientPlayerEntity.isSpectator()) {return;}
             PlayerOriginComponent c = (PlayerOriginComponent) ModComponents.ORIGIN.get(abstractClientPlayerEntity);
+            var iPEM = (IPlayerEntityMixins) abstractClientPlayerEntity;
             Origin o = null;
-            OriginalFurClient.OriginFur fur = null;
-
-
-            for (var layer : OriginLayers.getLayers()) {
-                var origin = c.getOrigin(layer);
-                if (origin == null) {continue;}
-                Identifier id = origin.getIdentifier();
-                var opt = OriginalFurClient.FUR_REGISTRY.get(id);
-                if (opt == null) {
-                    opt = OriginalFurClient.FUR_REGISTRY.get(Identifier.of("origins", id.getPath()));
-                    if (opt ==null) {
-                        System.out.println("[Origin Furs] Fur was null in feature: " + id + ". This should NEVER happen! Report this to the devs!");
-                        System.out.println(OriginalFurClient.FUR_REGISTRY.keySet());
-                        System.out.println("[Origin Furs] Listed all registered furs. Please include the previous line!");
-                        System.out.println("[Origin Furs] Please copy all mods, and this log file and create an issue:");
-                        System.out.println("[Origin Furs] https://github.com/avetharun/OriginalFur/issues/new");
-                        continue;
-                    }
-                    continue;
-                }
-                if (c.hasOrigin(layer)) {
-                    o = origin;
-                    fur = opt;
-                    break;
-                }
-            }
+            OriginalFurClient.OriginFur fur = iPEM.originalFur$getCurrentFur();
+            o = iPEM.originalFur$currentOrigins()[0];
             if (o == null) {return;}
 //            if (fur == null) {return;}
             var eR = (PlayerEntityRenderer)MinecraftClient.getInstance().getEntityRenderDispatcher().getRenderer(abstractClientPlayerEntity);

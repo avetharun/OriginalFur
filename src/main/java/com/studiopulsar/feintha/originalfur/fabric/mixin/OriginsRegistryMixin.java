@@ -30,7 +30,8 @@ public class OriginsRegistryMixin {
         private static void onRecievedOriginsMixin(Identifier[] ids, SerializableData.Instance[] origins, CallbackInfo ci, int i) throws IOException {
             var manager = MinecraftClient.getInstance().getResourceManager();
             String path = "furs";
-            Identifier id = new Identifier("origins", ids[i].getPath());
+            Identifier id = new Identifier(ids[i].getNamespace(), ids[i].getPath());
+            id = new Identifier(id.getNamespace(), id.getPath().replace('/', '.').replace('\\', '.'));
             if (!ids[i].getNamespace().contentEquals("origins")) {
                 var id_tmp = id;
                 id = ids[i];

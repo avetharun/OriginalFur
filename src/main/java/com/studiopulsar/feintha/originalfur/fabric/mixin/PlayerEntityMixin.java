@@ -58,14 +58,14 @@ public class PlayerEntityMixin implements IPlayerEntityMixins {
             cir.cancel();
         }
     }
-
     @Override
-    public OriginFurModel originalFur$getCurrentModel() {
+    public OriginalFurClient.OriginFur originalFur$getCurrentFur() {
         var cO = originalFur$currentOrigins();
-        if (cO.length == 0) {return OriginFurModel.NULL_OR_EMPTY_MODEL;}
+        if (cO.length == 0) {return OriginalFurClient.OriginFur.NULL_OR_DEFAULT_FUR;}
         try {
             var origin = cO[0];
             Identifier id = origin.getIdentifier();
+            id = Identifier.of(id.getNamespace(), id.getPath().replace('/', '.').replace('\\', '.'));
             var opt = OriginalFurClient.FUR_REGISTRY.get(id);
             if (opt == null) {
                 opt = OriginalFurClient.FUR_REGISTRY.get(Identifier.of("origins", id.getPath()));
@@ -75,10 +75,10 @@ public class PlayerEntityMixin implements IPlayerEntityMixins {
                     System.out.println("[Origin Furs] Listed all registered furs. Please include the previous line!");
                     System.out.println("[Origin Furs] Please copy all mods, and this log file and create an issue:");
                     System.out.println("[Origin Furs] https://github.com/avetharun/OriginalFur/issues/new");
+                    return null;
                 }
-                return null;
             }
-            return (OriginFurModel) opt.getGeoModel();
+            return opt;
         } catch (IndexOutOfBoundsException IOBE) {
             System.err.println("[Origin Furs] Something very wrong happened!");
             System.err.println(OriginalFurClient.FUR_REGISTRY.keySet());

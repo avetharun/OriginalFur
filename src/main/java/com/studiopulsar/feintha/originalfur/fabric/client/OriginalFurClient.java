@@ -74,6 +74,7 @@ public class OriginalFurClient implements ClientModInitializer {
 
     }
     public static class OriginFur extends GeoObjectRenderer<OriginFurAnimatable> {
+        public static final OriginFur NULL_OR_DEFAULT_FUR = new OriginFur(JsonParser.parseString("{}").getAsJsonObject());
         public void renderBone(String name, MatrixStack poseStack, @Nullable VertexConsumerProvider bufferSource, @Nullable RenderLayer renderType, @Nullable VertexConsumer buffer, int packedLight) {
             poseStack.push();
             var b = this.getGeoModel().getBone(name).orElse(null);
@@ -142,11 +143,16 @@ public class OriginalFurClient implements ClientModInitializer {
                 var resources = manager.findResources("furs", identifier -> identifier.getPath().endsWith(".json"));
                 for (var res : resources.keySet()) {
                     String itemName = res.getPath().substring(res.getPath().indexOf('/')+1, res.getPath().lastIndexOf('.'));
+//                    System.out.println(itemName);
                     Identifier id = new Identifier("origins", itemName);
-                    var p = itemName.split("\\.");
+                    var p = itemName.split("\\.", 2);
+//                    Arrays.stream(p).forEach(s -> {System.out.println(s);});
                     if (p.length > 1) {
                         id = Identifier.of(p[0], p[1]);
                     }
+//                    System.out.println(id);
+                    assert id != null;
+                    id = new Identifier(id.getNamespace(), id.getPath().replace('/', '.').replace('\\', '.'));
                     if (!res.getNamespace().contentEquals("orif-defaults")) {
                         FUR_REGISTRY.remove(id);
                         FUR_RESOURCES.remove(id);
@@ -154,6 +160,7 @@ public class OriginalFurClient implements ClientModInitializer {
                     if (FUR_REGISTRY.containsKey(id)) {
                         OriginFurModel m = (OriginFurModel) FUR_REGISTRY.get(id).getGeoModel();
                         try {
+//                            System.out.println(id);
                             m.recompile(JsonParser.parseString(new String(resources.get(res).getInputStream().readAllBytes())).getAsJsonObject());
                         } catch (IOException e) {
                             throw new RuntimeException(e);
@@ -165,15 +172,12 @@ public class OriginalFurClient implements ClientModInitializer {
                 OriginRegistry.entries().forEach(identifierOriginEntry -> {
                     var oID = identifierOriginEntry.getKey();
                     var o = identifierOriginEntry.getValue();
-                    Identifier id = new Identifier("origins", oID.getPath());
-                    if (!oID.getNamespace().contentEquals("origins")) {
-                        var id_tmp = id;
-                        id = oID;
-                        if (!OriginalFurClient.FUR_RESOURCES.containsKey(id)) {
-                            id = id_tmp;
-                        }
-                    }
+                    Identifier id = oID;
                     var fur = OriginalFurClient.FUR_RESOURCES.getOrDefault(id, null);
+                    if (fur == null) {
+                        id = Identifier.of("origins", oID.getPath());
+                        fur = OriginalFurClient.FUR_RESOURCES.getOrDefault(id, null);
+                    }
                     if (fur == null) {
                         OriginalFurClient.FUR_REGISTRY.put(id, new OriginalFurClient.OriginFur(JsonParser.parseString("{}").getAsJsonObject()));
                     } else {
