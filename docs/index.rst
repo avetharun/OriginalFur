@@ -35,7 +35,7 @@ Full json file example
     "emissive_overlay": "some_namespace:textures/custom/emissive_skin_overlay.png",
     "hidden": [
       "leftArm","rightArm", "body", "jacket", "head", "hat", "leftLeg", "rightLeg", "leftPants", "rightPants"
-    ]
+    ],
     "rendering_offsets": {
       "left": [0,0.3,0],
       "right": [0,0.3,0]
