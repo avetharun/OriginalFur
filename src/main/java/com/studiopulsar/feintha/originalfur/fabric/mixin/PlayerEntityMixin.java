@@ -6,6 +6,7 @@ import com.studiopulsar.feintha.originalfur.fabric.client.OriginalFurClient;
 import io.github.apace100.origins.component.PlayerOriginComponent;
 import io.github.apace100.origins.origin.Origin;
 import io.github.apace100.origins.registry.ModComponents;
+import io.github.apace100.originsclasses.OriginsClasses;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.network.OtherClientPlayerEntity;
@@ -22,6 +23,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 @Pseudo
@@ -65,6 +67,28 @@ public class PlayerEntityMixin implements IPlayerEntityMixins {
         try {
             var origin = cO[0];
             Identifier id = origin.getIdentifier();
+            // TODO: replace this hack with a loop to iterate over a player's active origins (sometimes origins-classes is at idx 0.)
+            if (id.getNamespace().equalsIgnoreCase("origins-classes")){
+                for (Origin value : cO) {
+                    origin = value;
+
+                    if (origin.getIdentifier().getNamespace().equalsIgnoreCase("origins-classes")) {
+                        continue;
+                    }
+
+                    id = origin.getIdentifier();
+                }
+                if (id.getNamespace().equalsIgnoreCase("origins-classes")){
+                    System.out.println("[Origin Furs] No Origin was found in entity mixin: " + id + ". This should NEVER happen! Report this to the devs!");
+                    System.out.println(OriginalFurClient.FUR_REGISTRY.keySet());
+                    System.out.println("[Origin Furs] Listing all origins attached to player..");
+                    Arrays.stream(cO).forEach(System.out::println);
+                    System.out.println("[Origin Furs] Listed all registered furs. Please include the previous line!");
+                    System.out.println("[Origin Furs] Please copy all mods, and this log file and create an issue:");
+                    System.out.println("[Origin Furs] https://github.com/avetharun/OriginalFur/issues/new");
+                    return OriginalFurClient.OriginFur.NULL_OR_DEFAULT_FUR;
+                }
+            }
             id = Identifier.of(id.getNamespace(), id.getPath().replace('/', '.').replace('\\', '.'));
             var opt = OriginalFurClient.FUR_REGISTRY.get(id);
             if (opt == null) {
@@ -78,6 +102,7 @@ public class PlayerEntityMixin implements IPlayerEntityMixins {
                     return null;
                 }
             }
+            opt.currentAssociatedOrigin = origin;
             return opt;
         } catch (IndexOutOfBoundsException IOBE) {
             System.err.println("[Origin Furs] Something very wrong happened!");
@@ -106,6 +131,6 @@ public class PlayerEntityMixin implements IPlayerEntityMixins {
     public Origin[] originalFur$currentOrigins() {
         PlayerOriginComponent c = (PlayerOriginComponent) ModComponents.ORIGIN.get(this);
         var v = c.getOrigins().values();
-        return v.toArray(new Origin[0]);
+        return (Origin[]) (new ArrayList<>(v).toArray());
     }
 }

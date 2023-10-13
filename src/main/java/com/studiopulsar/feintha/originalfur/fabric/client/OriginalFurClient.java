@@ -8,6 +8,7 @@ import com.studiopulsar.feintha.originalfur.fabric.OriginFurModel;
 import dev.kosmx.playerAnim.core.util.Vec3f;
 import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationAccess;
 import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationFactory;
+import io.github.apace100.origins.origin.Origin;
 import io.github.apace100.origins.origin.OriginRegistry;
 import mod.azure.azurelib.cache.object.*;
 import mod.azure.azurelib.renderer.GeoObjectRenderer;
@@ -74,6 +75,7 @@ public class OriginalFurClient implements ClientModInitializer {
 
     }
     public static class OriginFur extends GeoObjectRenderer<OriginFurAnimatable> {
+        public Origin currentAssociatedOrigin = Origin.EMPTY;
         public static final OriginFur NULL_OR_DEFAULT_FUR = new OriginFur(JsonParser.parseString("{}").getAsJsonObject());
         public void renderBone(String name, MatrixStack poseStack, @Nullable VertexConsumerProvider bufferSource, @Nullable RenderLayer renderType, @Nullable VertexConsumer buffer, int packedLight) {
             poseStack.push();

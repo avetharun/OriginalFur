@@ -7,8 +7,6 @@
     "GeoBoneMixin",
     "OriginsRegistryMixin",
     "OriginsRegistryMixin$OriginListMixin$ORIF",
-    "PseudoPlayerAnimatorMixins$AnimationControllerMixin",
-    "PseudoPlayerAnimatorMixins$ModifierLayerMixin"
   ],
   "client": [
     "ItemRendererMixin",
@@ -18,13 +16,7 @@
     "PlayerEntityMixin$OtherClientPlayerEntityMixin",
     "PlayerEntityRendererMixin",
     "PlayerEntityRendererMixin$LivingEntityRendererMixin$HidePlayerModelIfNeeded",
-    "PlayerEntityRendererMixin$PlayerEntityModel$RootModel$Mixin",
-    "PseudoBetterCombatMixins",
-    "PseudoPlayerAnimatorMixins$AnimationApplierMixin",
-    "PseudoPlayerAnimatorMixins$AnimationMixin",
-    "PseudoPlayerAnimatorMixins$AnimationProcessorMixin",
-    "PseudoPlayerAnimatorMixins$AnimationStackMixin",
-    "PseudoPlayerAnimatorMixins$KeyframeAnimationMixin"
+    "PlayerEntityRendererMixin$PlayerEntityModel$RootModel$Mixin"
   ],
   "mixinPriority": 99999,
   "injectors": {

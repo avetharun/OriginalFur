@@ -98,11 +98,10 @@ public class FurRenderFeature <T extends LivingEntity, M extends BipedEntityMode
             if (abstractClientPlayerEntity.isInvisible() || abstractClientPlayerEntity.isSpectator()) {return;}
             PlayerOriginComponent c = (PlayerOriginComponent) ModComponents.ORIGIN.get(abstractClientPlayerEntity);
             var iPEM = (IPlayerEntityMixins) abstractClientPlayerEntity;
-            Origin o = null;
             OriginalFurClient.OriginFur fur = iPEM.originalFur$getCurrentFur();
-            o = iPEM.originalFur$currentOrigins()[0];
+            if (fur == null){return;}
+            Origin o = fur.currentAssociatedOrigin;
             if (o == null) {return;}
-//            if (fur == null) {return;}
             var eR = (PlayerEntityRenderer)MinecraftClient.getInstance().getEntityRenderDispatcher().getRenderer(abstractClientPlayerEntity);
             var eRA = (IPlayerEntityMixins) eR;
             var acc = (ModelRootAccessor)eR.getModel();
