@@ -11,7 +11,13 @@ Optionally, if you want a specific model to not override origins with the same n
 
 `assets/some_namespace/furs/namespace.origin_name.json`
 
-If your origin is in a subfolder of origins, for example the below image, you NEED to use a namespace! Subfolders work as namespaces, so roiraces.impact1.elf.json would be used for the below image
+
+Using Origins Classes, if you create a custom class, you can also create a fur with the same format. 
+
+In code, this is done using origins-classes.class.json as the filename.
+As with the rest of the files, you can remove the namespace, but it's better to keep it there for redundancy.
+
+If your origin is in a subfolder of origins, for example the below image, you NEED to use a namespace! Subfolders work as namespaces, so roiraces.impact1.elf.json would be used for the below image. Removing the namespace (roiraces in this instance) will most likely not work.
 
 .. image:: https://user-images.githubusercontent.com/34732532/267094238-b3b796dc-29ac-4c52-9bfb-d304c2326b13.png
   :width: 255
