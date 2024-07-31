@@ -18,6 +18,7 @@ import mod.azure.azurelib.cache.object.GeoBone;
 import mod.azure.azurelib.core.animatable.model.CoreGeoBone;
 import mod.azure.azurelib.model.GeoModel;
 import mod.azure.azurelib.util.AzureLibUtil;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.RenderLayer;
@@ -115,6 +116,7 @@ public class OriginFurModel extends GeoModel<OriginFurAnimatable> {
     }
     public void preprocess(Origin origin, PlayerEntityRenderer playerRenderer, IPlayerEntityMixins playerEntity, ModelRootAccessor model, AbstractClientPlayerEntity abstractClientPlayerEntity) {
         getAnimationProcessor().getRegisteredBones().forEach(coreGeoBone -> {
+            // unfortunately, you cannot do this with switch statements..
             coreGeoBone.setHidden(false);
             coreGeoBone.setHidden(coreGeoBone.getName().endsWith("thin_only") && !model.originalFur$isSlim());
             if (coreGeoBone.isHidden()) {
@@ -134,6 +136,17 @@ public class OriginFurModel extends GeoModel<OriginFurAnimatable> {
             if (coreGeoBone.isHidden()) {return;}
             coreGeoBone.setHidden(coreGeoBone.getName().contains("boots_hides") && !abstractClientPlayerEntity.getEquippedStack(EquipmentSlot.FEET).isEmpty());
             if (coreGeoBone.isHidden()) {return;}
+            for (var modid : FabricLoader.getInstance().getAllMods()){
+                var id = modid.getMetadata().getId();
+                if (coreGeoBone.getName().contains("mod_hides_IDS_QUIVERS") && Arrays.asList(OriginalFur.QUIVER_MODS).contains(id)) {
+                    coreGeoBone.setHidden(true);
+                    return;
+                }
+                if (coreGeoBone.getName().contains("mod_hides_"+id)) {
+                    coreGeoBone.setHidden(true);
+                    return;
+                }
+            }
         });
     }
     public void preRender$mixinOnly(PlayerEntity player) {
@@ -188,6 +201,9 @@ public class OriginFurModel extends GeoModel<OriginFurAnimatable> {
     }
     public boolean hasSubRenderingOffset(String id) {
         return hasRenderingOffsets() && json.getAsJsonObject("rendering_offsets").has(id);
+    }
+    public Vec3d getSubRenderingOffset(String id) {
+        return hasSubRenderingOffset(id) ? alib.VectorFromJson(json.getAsJsonObject("rendering_offsets").get(id)) : Vec3d.ZERO;
     }
     public final Vec3d getRightOffset() {
         if (!hasSubRenderingOffset("right")) {

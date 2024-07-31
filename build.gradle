@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.2-SNAPSHOT'
+    id 'fabric-loom' version '1.6-SNAPSHOT'
     id 'maven-publish'
 //    id 'io.github.juuxel.loom-quiltflower' version '1.8.+' // For loom 0.8-0.9, 0.11+
 }
@@ -38,7 +38,7 @@ dependencies {
 //    modImplementation "org.quiltmc.quilted-fabric-api:quilted-fabric-api:${project.quilted_fabric_api_version}-${project.minecraft_version}"
 
     modCompileOnly "maven.modrinth:origins:OdNHB7Bh"
-    modImplementation "maven.modrinth:azurelib:D0bLIbTK"
+    modCompileOnly "maven.modrinth:azurelib:D0bLIbTK"
     modCompileOnly "maven.modrinth:cardinal-components-api:HykM2Qyv"
     modCompileOnly(files(
             "libs/Apoli-1.20.1-2.9.0.jar"

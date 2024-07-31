@@ -10,7 +10,7 @@
   },
   "license": "unlicense",
   "icon": "assets/originalfur/icon.png",
-  "environment": "client",
+  "environment": "*",
   "entrypoints": {
     "client": [
       "com.studiopulsar.feintha.originalfur.fabric.client.OriginalFurClient"

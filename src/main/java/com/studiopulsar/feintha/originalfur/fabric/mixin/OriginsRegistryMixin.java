@@ -35,11 +35,11 @@ public class OriginsRegistryMixin {
             if (!ids[i].getNamespace().contentEquals("origins")) {
                 var id_tmp = id;
                 id = ids[i];
-                System.out.println(id);
                 if (!OriginalFurClient.FUR_RESOURCES.containsKey(id)) {
                     id = id_tmp;
                 }
             }
+            System.out.println(id);
             var fur = OriginalFurClient.FUR_RESOURCES.getOrDefault(id, null);
             if (fur == null) {
                 OriginalFurClient.FUR_REGISTRY.put(id, new OriginalFurClient.OriginFur(JsonParser.parseString("{}").getAsJsonObject()));

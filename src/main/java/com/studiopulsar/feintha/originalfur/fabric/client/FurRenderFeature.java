@@ -96,84 +96,75 @@ public class FurRenderFeature <T extends LivingEntity, M extends BipedEntityMode
     public void render(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int light, T entity, float limbAngle, float limbDistance, float tickDelta, float animationProgress, float headYaw, float headPitch) {
         if (entity instanceof AbstractClientPlayerEntity abstractClientPlayerEntity) {
             if (abstractClientPlayerEntity.isInvisible() || abstractClientPlayerEntity.isSpectator()) {return;}
-            PlayerOriginComponent c = (PlayerOriginComponent) ModComponents.ORIGIN.get(abstractClientPlayerEntity);
             var iPEM = (IPlayerEntityMixins) abstractClientPlayerEntity;
-            OriginalFurClient.OriginFur fur = iPEM.originalFur$getCurrentFur();
-            if (fur == null){return;}
-            Origin o = fur.currentAssociatedOrigin;
-            if (o == null) {return;}
-            var eR = (PlayerEntityRenderer)MinecraftClient.getInstance().getEntityRenderDispatcher().getRenderer(abstractClientPlayerEntity);
-            var eRA = (IPlayerEntityMixins) eR;
-            var acc = (ModelRootAccessor)eR.getModel();
-            var a = fur.getAnimatable();
-            OriginFurModel m = (OriginFurModel) fur.getGeoModel();
-            Origin finalO = o;
-            m.getAnimationProcessor().getRegisteredBones().forEach(coreGeoBone -> {
-                if (((IGeoBone)coreGeoBone).originfurs$isHiddenByDefault()) {
+            for (var fur : iPEM.originalFur$getCurrentFurs()) {
+                if (fur == null) {
                     return;
                 }
-                m.preprocess(finalO, eR, eRA, acc, abstractClientPlayerEntity);
-            });
-            fur.setPlayer(abstractClientPlayerEntity);
-            var lAP = eR.getModel().leftArmPose;
-            var rAP = eR.getModel().rightArmPose;
-            for (int i = 0; i < 2; i++) {
-                matrixStack.push();
-                matrixStack.multiply(new Quaternionf().rotateX(180 * MathHelper.RADIANS_PER_DEGREE));
-//                matrixStack.multiply(new Quaternionf().rotateY((-abstractClientPlayerEntity.getYaw(tickDelta)) * MathHelper.RADIANS_PER_DEGREE));
-                matrixStack.translate(0, -1.51f, 0);
-                MinecraftClient.getInstance().getProfiler().push("copy_mojmap");
-//
-                m.resetBone("bipedHead");
-                m.resetBone("bipedBody");
-                m.resetBone("bipedLeftArm");
-                m.resetBone("bipedRightArm");
-                m.resetBone("bipedLeftLeg");
-                m.resetBone("bipedRightLeg");
-
-                m.setRotationForBone("bipedHead", ((IMojModelPart)(Object)eR.getModel().head).originfurs$getRotation());
-                m.translatePositionForBone("bipedHead", ((IMojModelPart)(Object)eR.getModel().head).originfurs$getPosition().multiply(-16f));
-                m.translatePositionForBone("bipedBody", ((IMojModelPart)(Object)eR.getModel().body).originfurs$getPosition().multiply(-16f));
-                m.translatePositionForBone("bipedLeftArm", ((IMojModelPart)(Object)eR.getModel().leftArm).originfurs$getPosition().multiply(-16f));
-                m.translatePositionForBone("bipedRightArm", ((IMojModelPart)(Object)eR.getModel().rightArm).originfurs$getPosition().multiply(-16f));
-                m.translatePositionForBone("bipedLeftLeg", ((IMojModelPart)(Object)eR.getModel().rightLeg).originfurs$getPosition().multiply(-16f));
-                m.translatePositionForBone("bipedRightLeg", ((IMojModelPart)(Object)eR.getModel().leftLeg).originfurs$getPosition().multiply(-16f));
-                m.translatePositionForBone("bipedLeftArm", new Vec3d(5,2,0));
-                m.translatePositionForBone("bipedRightArm", new Vec3d(-5,2,0));
-//                m.translatePositionForBone("bipedLeftLeg", new Vec3d(-1.9999,11.98,0.02));
-                m.translatePositionForBone("bipedLeftLeg", new Vec3d(-2,12,0));
-                m.translatePositionForBone("bipedRightLeg", new Vec3d(2,12,0));
-//                PlayerEntityModel
-//                System.out.println(m.getPositionForBone("bipedRightArm").scale(16));
-//                MinecraftClient.getInstance().getProfiler().pop();
-//                MinecraftClient.getInstance().getProfiler().push("transform_manual");
-//                boolean allowSneakingPose = true, translateVanilla = true;
-//
-//                MinecraftClient.getInstance().getProfiler().pop();
-                matrixStack.translate(-0.5, -0.5, -0.5);
-                m.setRotationForBone("bipedBody", ((IMojModelPart)(Object)eR.getModel().body).originfurs$getRotation());
-                m.invertRotForPart("bipedBody", false, true, false);
-                m.setRotationForBone("bipedLeftArm", ((IMojModelPart)(Object)eR.getModel().leftArm).originfurs$getRotation());
-                m.setRotationForBone("bipedRightArm", ((IMojModelPart)(Object)eR.getModel().rightArm).originfurs$getRotation());
-                m.setRotationForBone("bipedLeftLeg", ((IMojModelPart)(Object)eR.getModel().rightLeg).originfurs$getRotation());
-                m.setRotationForBone("bipedRightLeg", ((IMojModelPart)(Object)eR.getModel().leftLeg).originfurs$getRotation());
-                m.invertRotForPart("bipedHead", false, true, true);
-                m.invertRotForPart("bipedRightArm", false, true, true);
-                m.invertRotForPart("bipedLeftArm", false, true, true);
-                m.invertRotForPart("bipedRightLeg", false, true, true);
-                m.invertRotForPart("bipedLeftLeg", false, true, true);
-                MinecraftClient.getInstance().getProfiler().push("render");
-                if (i == 0) {
-                    fur.render(matrixStack, a, vertexConsumerProvider, RenderLayer.getEntityTranslucent(m.getTextureResource(a)), null, light);
-                } else {
-                    fur.render(matrixStack, a, vertexConsumerProvider, RenderLayer.getEntityTranslucentEmissive(m.getFullbrightTextureResource(a)), null, Integer.MAX_VALUE - 1);
+                Origin o = fur.currentAssociatedOrigin;
+                if (o == null) {
+                    return;
                 }
+                var eR = (PlayerEntityRenderer) MinecraftClient.getInstance().getEntityRenderDispatcher().getRenderer(abstractClientPlayerEntity);
+                var eRA = (IPlayerEntityMixins) eR;
+                var acc = (ModelRootAccessor) eR.getModel();
+                var a = fur.getAnimatable();
+                OriginFurModel m = (OriginFurModel) fur.getGeoModel();
+                Origin finalO = o;
+                m.getAnimationProcessor().getRegisteredBones().forEach(coreGeoBone -> {
+                    if (((IGeoBone) coreGeoBone).originfurs$isHiddenByDefault()) {
+                        return;
+                    }
+                    m.preprocess(finalO, eR, eRA, acc, abstractClientPlayerEntity);
+                });
+                fur.setPlayer(abstractClientPlayerEntity);
+                for (int i = 0; i < 2; i++) {
+                    matrixStack.push();
+                    matrixStack.multiply(new Quaternionf().rotateX(180 * MathHelper.RADIANS_PER_DEGREE));
+                    matrixStack.translate(0, -1.51f, 0);
+                    MinecraftClient.getInstance().getProfiler().push("copy_mojmap");
+                    //
+                    m.resetBone("bipedHead");
+                    m.resetBone("bipedBody");
+                    m.resetBone("bipedLeftArm");
+                    m.resetBone("bipedRightArm");
+                    m.resetBone("bipedLeftLeg");
+                    m.resetBone("bipedRightLeg");
 
-                MinecraftClient.getInstance().getProfiler().pop();
-                MinecraftClient.getInstance().getProfiler().pop();
-//                m.popScl("bipedLeftLeg");
-//                m.popScl("bipedRightLeg");
-                matrixStack.pop();
+                    m.setRotationForBone("bipedHead", ((IMojModelPart) (Object) eR.getModel().head).originfurs$getRotation());
+                    m.translatePositionForBone("bipedHead", ((IMojModelPart) (Object) eR.getModel().head).originfurs$getPosition().multiply(-16f));
+                    m.translatePositionForBone("bipedBody", ((IMojModelPart) (Object) eR.getModel().body).originfurs$getPosition().multiply(-16f));
+                    m.translatePositionForBone("bipedLeftArm", ((IMojModelPart) (Object) eR.getModel().leftArm).originfurs$getPosition().multiply(-16f));
+                    m.translatePositionForBone("bipedRightArm", ((IMojModelPart) (Object) eR.getModel().rightArm).originfurs$getPosition().multiply(-16f));
+                    m.translatePositionForBone("bipedLeftLeg", ((IMojModelPart) (Object) eR.getModel().rightLeg).originfurs$getPosition().multiply(-16f));
+                    m.translatePositionForBone("bipedRightLeg", ((IMojModelPart) (Object) eR.getModel().leftLeg).originfurs$getPosition().multiply(-16f));
+                    m.translatePositionForBone("bipedLeftArm", new Vec3d(5, 2, 0));
+                    m.translatePositionForBone("bipedRightArm", new Vec3d(-5, 2, 0));
+                    m.translatePositionForBone("bipedLeftLeg", new Vec3d(-2, 12, 0));
+                    m.translatePositionForBone("bipedRightLeg", new Vec3d(2, 12, 0));
+                    matrixStack.translate(-0.5, -0.5, -0.5);
+                    m.setRotationForBone("bipedBody", ((IMojModelPart) (Object) eR.getModel().body).originfurs$getRotation());
+                    m.invertRotForPart("bipedBody", false, true, false);
+                    m.setRotationForBone("bipedLeftArm", ((IMojModelPart) (Object) eR.getModel().leftArm).originfurs$getRotation());
+                    m.setRotationForBone("bipedRightArm", ((IMojModelPart) (Object) eR.getModel().rightArm).originfurs$getRotation());
+                    m.setRotationForBone("bipedLeftLeg", ((IMojModelPart) (Object) eR.getModel().rightLeg).originfurs$getRotation());
+                    m.setRotationForBone("bipedRightLeg", ((IMojModelPart) (Object) eR.getModel().leftLeg).originfurs$getRotation());
+                    m.invertRotForPart("bipedHead", false, true, true);
+                    m.invertRotForPart("bipedRightArm", false, true, true);
+                    m.invertRotForPart("bipedLeftArm", false, true, true);
+                    m.invertRotForPart("bipedRightLeg", false, true, true);
+                    m.invertRotForPart("bipedLeftLeg", false, true, true);
+                    MinecraftClient.getInstance().getProfiler().push("render");
+                    if (i == 0) {
+                        fur.render(matrixStack, a, vertexConsumerProvider, RenderLayer.getEntityTranslucent(m.getTextureResource(a)), null, light);
+                    } else {
+                        fur.render(matrixStack, a, vertexConsumerProvider, RenderLayer.getEntityTranslucentEmissive(m.getFullbrightTextureResource(a)), null, Integer.MAX_VALUE - 1);
+                    }
+
+                    MinecraftClient.getInstance().getProfiler().pop();
+                    MinecraftClient.getInstance().getProfiler().pop();
+                    matrixStack.pop();
+                }
             }
         }
         MinecraftClient.getInstance().getProfiler().pop();

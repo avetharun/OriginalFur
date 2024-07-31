@@ -7,6 +7,7 @@ import com.studiopulsar.feintha.originalfur.fabric.ModelRootAccessor;
 import com.studiopulsar.feintha.originalfur.fabric.client.FurRenderFeature;
 import com.studiopulsar.feintha.originalfur.fabric.OriginFurModel;
 import com.studiopulsar.feintha.originalfur.fabric.client.OriginalFurClient;
+import io.github.apace100.apoli.mixin.ElytraFeatureRendererMixin;
 import io.github.apace100.origins.component.PlayerOriginComponent;
 import io.github.apace100.origins.origin.OriginLayers;
 import io.github.apace100.origins.registry.ModComponents;
@@ -22,7 +23,9 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.LivingEntityRenderer;
 import net.minecraft.client.render.entity.PlayerEntityRenderer;
+import net.minecraft.client.render.entity.feature.ElytraFeatureRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRenderer;
+import net.minecraft.client.render.entity.feature.FeatureRendererContext;
 import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.client.render.entity.model.EntityModels;
 import net.minecraft.client.render.entity.model.PlayerEntityModel;
@@ -41,6 +44,25 @@ import java.util.List;
 @Pseudo
 @Mixin(value = PlayerEntityRenderer.class, priority = 99999)
 public class PlayerEntityRendererMixin {
+
+    @Pseudo
+    @Mixin(value= ElytraFeatureRenderer.class)
+    public static abstract class ElytraRendererMixin <T extends LivingEntity, M extends EntityModel<T>> extends FeatureRenderer<T, M>{
+
+        public ElytraRendererMixin(FeatureRendererContext<T, M> context) { super(context); }
+
+        @Inject(method="render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;ILnet/minecraft/entity/LivingEntity;FFFFFF)V", at=@At(value = "INVOKE", target = "Lnet/minecraft/client/util/math/MatrixStack;translate(FFF)V", shift = At.Shift.AFTER))
+        void renderMixin(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, T livingEntity, float f, float g, float h, float j, float k, float l, CallbackInfo ci){
+            if (livingEntity instanceof IPlayerEntityMixins ipem) {
+                ipem.originalFur$getCurrentModels().forEach(originFurModel -> {
+                    var v = originFurModel.getSubRenderingOffset("elytra").negate();
+                    matrixStack.translate(v.x, v.y, v.z);
+                });
+
+            }
+        }
+
+    }
 
     @Pseudo
     @Mixin(value=PlayerEntityModel.class, priority = 99999)
@@ -149,32 +171,33 @@ public class PlayerEntityRendererMixin {
                     if (origin == null) {return;}
                     MinecraftClient.getInstance().getProfiler().push("originalfurs:" + origin.getIdentifier().getPath());
                     Identifier id = origin.getIdentifier();
-                    var opt = ((IPlayerEntityMixins)abstractClientPlayerEntity).originalFur$getCurrentFur();
-                    OriginFurModel m_Model = (OriginFurModel) opt.getGeoModel();
+                    for (var opt : ((IPlayerEntityMixins)abstractClientPlayerEntity).originalFur$getCurrentFurs()) {
+                        OriginFurModel m_Model = (OriginFurModel) opt.getGeoModel();
 
-                    m_Model.preRender$mixinOnly(abstractClientPlayerEntity);
-                    if (m_Model.isPlayerModelInvisible()) {
-                        isInvisible = true;
-                        matrixStack.translate(0,9999,0);
-                    } else {
-                        isInvisible = false;
-                    }
+                        m_Model.preRender$mixinOnly(abstractClientPlayerEntity);
+                        if (m_Model.isPlayerModelInvisible()) {
+                            isInvisible = true;
+                            matrixStack.translate(0, 9999, 0);
+                        } else {
+                            isInvisible = false;
+                        }
 
-                    if (!isInvisible) {
-                        var p = m_Model.getHiddenParts();
-                        var model = (PlayerEntityModel<?>)this.getModel();
-                        model.hat.hidden = p.contains(OriginFurModel.VMP.hat);
-                        model.head.hidden = p.contains(OriginFurModel.VMP.head);
-                        model.body.hidden = p.contains(OriginFurModel.VMP.body);
-                        model.jacket.hidden = p.contains(OriginFurModel.VMP.jacket);
-                        model.leftArm.hidden = p.contains(OriginFurModel.VMP.leftArm);
-                        model.leftSleeve.hidden = p.contains(OriginFurModel.VMP.leftSleeve);
-                        model.rightArm.hidden = p.contains(OriginFurModel.VMP.rightArm);
-                        model.rightSleeve.hidden = p.contains(OriginFurModel.VMP.rightSleeve);
-                        model.leftLeg.hidden = p.contains(OriginFurModel.VMP.leftLeg);
-                        model.leftPants.hidden = p.contains(OriginFurModel.VMP.leftPants);
-                        model.rightLeg.hidden = p.contains(OriginFurModel.VMP.rightLeg);
-                        model.rightPants.hidden = p.contains(OriginFurModel.VMP.rightPants);
+                        if (!isInvisible) {
+                            var p = m_Model.getHiddenParts();
+                            var model = (PlayerEntityModel<?>) this.getModel();
+                            model.hat.hidden = p.contains(OriginFurModel.VMP.hat);
+                            model.head.hidden = p.contains(OriginFurModel.VMP.head);
+                            model.body.hidden = p.contains(OriginFurModel.VMP.body);
+                            model.jacket.hidden = p.contains(OriginFurModel.VMP.jacket);
+                            model.leftArm.hidden = p.contains(OriginFurModel.VMP.leftArm);
+                            model.leftSleeve.hidden = p.contains(OriginFurModel.VMP.leftSleeve);
+                            model.rightArm.hidden = p.contains(OriginFurModel.VMP.rightArm);
+                            model.rightSleeve.hidden = p.contains(OriginFurModel.VMP.rightSleeve);
+                            model.leftLeg.hidden = p.contains(OriginFurModel.VMP.leftLeg);
+                            model.leftPants.hidden = p.contains(OriginFurModel.VMP.leftPants);
+                            model.rightLeg.hidden = p.contains(OriginFurModel.VMP.rightLeg);
+                            model.rightPants.hidden = p.contains(OriginFurModel.VMP.rightPants);
+                        }
                     }
                 }
             }
@@ -201,40 +224,41 @@ public class PlayerEntityRendererMixin {
                     }
                     MinecraftClient.getInstance().getProfiler().push("originalfurs:" + origin.getIdentifier().getPath());
                     Identifier id = origin.getIdentifier();
-                    var opt = ((IPlayerEntityMixins) aCPE).originalFur$getCurrentFur();
-                    var model = (ModelRootAccessor)(PlayerEntityModel<?>)this.getModel();
-                    OriginFurModel m_Model = (OriginFurModel) opt.getGeoModel();
-                    var overlayTexture = m_Model.getOverlayTexture(model.originalFur$isSlim());
-                    var emissiveTexture = m_Model.getEmissiveTexture(model.originalFur$isSlim());
-                    boolean bl = this.isVisible(livingEntity);
-                    boolean bl2 = !bl && !livingEntity.isInvisibleTo(MinecraftClient.getInstance().player);
-                    if ( overlayTexture != null) {
-                        RenderLayer l = null;
-                        if (OriginalFurClient.isRenderingInWorld && FabricLoader.getInstance().isModLoaded("iris")) {
-                            l = RenderLayer.getEntityCutoutNoCullZOffset(overlayTexture);
-                        } else {
-                            l = RenderLayer.getEntityCutout(overlayTexture);
+                    for (var opt : ((IPlayerEntityMixins) aCPE).originalFur$getCurrentFurs()) {
+                        var model = (ModelRootAccessor) (PlayerEntityModel<?>) this.getModel();
+                        OriginFurModel m_Model = (OriginFurModel) opt.getGeoModel();
+                        var overlayTexture = m_Model.getOverlayTexture(model.originalFur$isSlim());
+                        var emissiveTexture = m_Model.getEmissiveTexture(model.originalFur$isSlim());
+                        boolean bl = this.isVisible(livingEntity);
+                        boolean bl2 = !bl && !livingEntity.isInvisibleTo(MinecraftClient.getInstance().player);
+                        if (overlayTexture != null) {
+                            RenderLayer l = null;
+                            if (OriginalFurClient.isRenderingInWorld && FabricLoader.getInstance().isModLoaded("iris")) {
+                                l = RenderLayer.getEntityCutoutNoCullZOffset(overlayTexture);
+                            } else {
+                                l = RenderLayer.getEntityCutout(overlayTexture);
+                            }
+                            this.model.render(matrixStack, vertexConsumerProvider.getBuffer(l), i, p, 1, 1, 1, bl2 ? 0.15F : 1.0F);
                         }
-                        this.model.render(matrixStack, vertexConsumerProvider.getBuffer(l), i, p, 1, 1, 1, bl2 ? 0.15F : 1.0F);
-                    }
-                    if ( emissiveTexture != null) {
+                        if (emissiveTexture != null) {
 
-                        RenderLayer l = RenderLayer.getEntityTranslucentEmissive(emissiveTexture);
-                        this.model.render(matrixStack, vertexConsumerProvider.getBuffer(l), i, p, 1, 1, 1, bl2 ? 0.15F : 1.0F);
+                            RenderLayer l = RenderLayer.getEntityTranslucentEmissive(emissiveTexture);
+                            this.model.render(matrixStack, vertexConsumerProvider.getBuffer(l), i, p, 1, 1, 1, bl2 ? 0.15F : 1.0F);
+                        }
+                        var m = (PlayerEntityModel<?>) this.getModel();
+                        m.hat.hidden = false;
+                        m.head.hidden = false;
+                        m.body.hidden = false;
+                        m.jacket.hidden = false;
+                        m.leftArm.hidden = false;
+                        m.leftSleeve.hidden = false;
+                        m.rightArm.hidden = false;
+                        m.rightSleeve.hidden = false;
+                        m.leftLeg.hidden = false;
+                        m.leftPants.hidden = false;
+                        m.rightLeg.hidden = false;
+                        m.rightPants.hidden = false;
                     }
-                    var m = (PlayerEntityModel<?>)this.getModel();
-                    m.hat.hidden = false;
-                    m.head.hidden = false;
-                    m.body.hidden = false;
-                    m.jacket.hidden = false;
-                    m.leftArm.hidden = false;
-                    m.leftSleeve.hidden = false;
-                    m.rightArm.hidden = false;
-                    m.rightSleeve.hidden = false;
-                    m.leftLeg.hidden = false;
-                    m.leftPants.hidden = false;
-                    m.rightLeg.hidden = false;
-                    m.rightPants.hidden = false;
                 }
             }
         }

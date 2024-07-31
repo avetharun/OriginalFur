@@ -3,46 +3,43 @@ package com.studiopulsar.feintha.originalfur.fabric.client;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.studiopulsar.feintha.originalfur.OriginFurAnimatable;
+import com.studiopulsar.feintha.originalfur.fabric.AbstractClientPlayerEntityCompatMixins;
 import com.studiopulsar.feintha.originalfur.fabric.IPlayerEntityMixins;
 import com.studiopulsar.feintha.originalfur.fabric.OriginFurModel;
-import dev.kosmx.playerAnim.core.util.Vec3f;
-import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationAccess;
+import com.studiopulsar.feintha.originalfur.fabric.OriginalFur;
 import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationFactory;
 import io.github.apace100.origins.origin.Origin;
 import io.github.apace100.origins.origin.OriginRegistry;
-import mod.azure.azurelib.cache.object.*;
+import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.renderer.GeoObjectRenderer;
-import net.bettercombat.api.EntityPlayer_BetterCombat;
-import net.bettercombat.api.client.BetterCombatClientEvents;
-import net.bettercombat.network.Packets;
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
-import net.fabricmc.fabric.api.renderer.v1.RendererAccess;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.hud.InGameHud;
+import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.RenderPhase;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.WorldEvents;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
-import java.util.List;
 
 public class OriginalFurClient implements ClientModInitializer {
 
@@ -61,14 +58,15 @@ public class OriginalFurClient implements ClientModInitializer {
         @Override
         public void setupAnim(float v) {
             if (player instanceof ClientPlayerEntity cPE && player instanceof IPlayerEntityMixins iPE) {
-                var m = iPE.originalFur$getCurrentModel();
-                if (m == null) {
-                    return;
-                }
-                var lP = m.getLeftOffset();
-                var rP = m.getRightOffset();
+                for (var m : iPE.originalFur$getCurrentModels()) {
+                    if (m == null) {
+                        return;
+                    }
+                    var lP = m.getLeftOffset();
+                    var rP = m.getRightOffset();
 //                leftItem.pos = new Vec3f((float) lP.x, (float) lP.y, (float) lP.z);
 //                rightItem.pos = new Vec3f((float) rP.x, (float) rP.y, (float) rP.z);
+                }
 
             }
         }
@@ -133,6 +131,35 @@ public class OriginalFurClient implements ClientModInitializer {
         }
         WorldRenderEvents.END.register(context -> isRenderingInWorld = false);
         WorldRenderEvents.START.register(context -> isRenderingInWorld = true);
+        ClientPlayNetworking.registerGlobalReceiver(OriginalFur.S2C_REQ_ORIGIN_RESP, (client, handler, buf, responseSender) -> {
+//            var resp = new OriginalFur.RequestOriginPacket();
+//            resp.read(buf);
+//            System.out.println("Recieved Origins for player " + resp.requestedPlayerName);
+//            assert client.world != null;
+//            ((AbstractClientPlayerEntityCompatMixins)client.world.getPlayerByUuid(resp.requestedPlayerUUID)).originfurs$setOrigins(resp.origins);
+        });
+        ClientEntityEvents.ENTITY_LOAD.register((entity, world) -> {
+//            if (entity instanceof PlayerEntity pE){
+//                var request = new OriginalFur.RequestOriginPacket();
+//                request.requestedPlayerUUID = pE.getUuid();
+//                request.requestedPlayerName = pE.getName().getString();
+//                PacketByteBuf buf = PacketByteBufs.create();
+//                request.writeSv(buf);
+//                System.out.println("Requesting Origins for player " + request.requestedPlayerName);
+//                ClientPlayNetworking.send(OriginalFur.C2S_REQ_ORIGIN_UUID,buf);
+//            }
+        });
+        ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
+            client.world.getPlayers().forEach(pE -> {
+//                var request = new OriginalFur.RequestOriginPacket();
+//                request.requestedPlayerUUID = pE.getUuid();
+//                request.requestedPlayerName = pE.getName().getString();
+//                PacketByteBuf buf = PacketByteBufs.create();
+//                request.writeSv(buf);
+//                System.out.println("Requesting Origins for player " + request.requestedPlayerName);
+//                ClientPlayNetworking.send(OriginalFur.C2S_REQ_ORIGIN_UUID,buf);
+            });
+        });
         ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(new SimpleSynchronousResourceReloadListener() {
             @Override
             public Identifier getFabricId() {
@@ -171,25 +198,31 @@ public class OriginalFurClient implements ClientModInitializer {
                         FUR_RESOURCES.put(id, resources.get(res));
                     }
                 }
-                OriginRegistry.entries().forEach(identifierOriginEntry -> {
-                    var oID = identifierOriginEntry.getKey();
-                    var o = identifierOriginEntry.getValue();
-                    Identifier id = oID;
-                    var fur = OriginalFurClient.FUR_RESOURCES.getOrDefault(id, null);
-                    if (fur == null) {
-                        id = Identifier.of("origins", oID.getPath());
-                        fur = OriginalFurClient.FUR_RESOURCES.getOrDefault(id, null);
-                    }
-                    if (fur == null) {
-                        OriginalFurClient.FUR_REGISTRY.put(id, new OriginalFurClient.OriginFur(JsonParser.parseString("{}").getAsJsonObject()));
-                    } else {
-                        try {
-                            OriginalFurClient.FUR_REGISTRY.put(id, new  OriginFur(JsonParser.parseString(new String(fur.getInputStream().readAllBytes())).getAsJsonObject()));
-                        } catch (IOException e) {
-                            System.err.println(e.getMessage());
+                assert FabricLoader.getInstance().isModLoaded("origins");
+                try {
+                    OriginRegistry.entries().forEach(identifierOriginEntry -> {
+                        var oID = identifierOriginEntry.getKey();
+                        var o = identifierOriginEntry.getValue();
+                        Identifier id = oID;
+                        var fur = OriginalFurClient.FUR_RESOURCES.getOrDefault(id, null);
+                        if (fur == null) {
+                            id = Identifier.of("origins", oID.getPath());
+                            fur = OriginalFurClient.FUR_RESOURCES.getOrDefault(id, null);
                         }
-                    }
-                });
+                        if (fur == null) {
+                            OriginalFurClient.FUR_REGISTRY.put(id, new OriginalFurClient.OriginFur(JsonParser.parseString("{}").getAsJsonObject()));
+                        } else {
+                            try {
+                                OriginalFurClient.FUR_REGISTRY.put(id, new OriginFur(JsonParser.parseString(new String(fur.getInputStream().readAllBytes())).getAsJsonObject()));
+                            } catch (IOException e) {
+                                System.err.println(e.getMessage());
+                            }
+                        }
+                    });
+                } catch(Exception e) {
+                    System.out.println("[ORIF] Failed to load origins registry! Ensure the Origins mod is loaded! Some models may not work, and crashes may occur!");
+                    e.printStackTrace();
+                }
             }
         });
     }

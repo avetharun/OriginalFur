@@ -28,7 +28,10 @@ public class ItemRendererMixin <T extends LivingEntity, M extends EntityModel<T>
     @Inject(method="renderItem", at=@At(value = "INVOKE",target = "Lnet/minecraft/client/util/math/MatrixStack;translate(FFF)V", shift = At.Shift.BEFORE))
     void renderItemMixin(LivingEntity entity, ItemStack stack, ModelTransformationMode transformationMode, Arm arm, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, CallbackInfo ci) {
         if (entity instanceof ClientPlayerEntity cPE && entity instanceof IPlayerEntityMixins iPE) {
-            var m = iPE.originalFur$getCurrentModel();
+            // TODO: possibly make this use a loop to find the max offset and cache it?
+            var mA = iPE.originalFur$getCurrentModels();
+            if (mA.size() == 0){return;}
+            var m = mA.get(0);
             if (m == null) {
                 return;
             }

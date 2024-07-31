@@ -5,6 +5,6 @@
   "overlay": "orif-defaults:textures/shulk_skin.png",
   "elytraTexture": "orif-defaults:textures/shulk/shulk_elytra.png",
   "hidden": [
-    "leftArm","rightArm", "body", "jacket"
+    "leftArm","rightArm", "body"
   ]
 }
