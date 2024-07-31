@@ -1,7 +1,6 @@
 package com.studiopulsar.feintha.originalfur.fabric.mixin;
 
 import com.studiopulsar.feintha.originalfur.fabric.client.IMojModelPart;
-import mod.azure.azurelib.AzureLib;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.model.ModelPartBuilder;
 import net.minecraft.client.model.ModelTransform;
@@ -42,7 +41,7 @@ public abstract class Mojang_ModelPartMixin implements IMojModelPart {
     @Override
     public Vec3d originfurs$getPosition() {
         var t = getTransform();
-        return new Vec3d(t.pivotX / 16, t.pivotY / 16, t.pivotZ / 16);
+        return new Vec3d(t.pivotX, t.pivotY, t.pivotZ).negate();
     }
     @Inject(method="<init>", at=@At("TAIL"))
     void createHolderMixin(List<ModelPart.Cuboid> cuboids, Map<String, ModelPart> children, CallbackInfo ci) {

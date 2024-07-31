@@ -3,29 +3,25 @@ package com.studiopulsar.feintha.originalfur.fabric.mixin;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.studiopulsar.feintha.originalfur.fabric.AbstractClientPlayerEntityCompatMixins;
 import com.studiopulsar.feintha.originalfur.fabric.IPlayerEntityMixins;
-import com.studiopulsar.feintha.originalfur.fabric.OriginFurModel;
 import com.studiopulsar.feintha.originalfur.fabric.client.OriginalFurClient;
 import io.github.apace100.origins.component.PlayerOriginComponent;
 import io.github.apace100.origins.origin.Origin;
 import io.github.apace100.origins.origin.OriginRegistry;
 import io.github.apace100.origins.registry.ModComponents;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
-import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.network.OtherClientPlayerEntity;
-import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.client.util.DefaultSkinHelper;
+import net.minecraft.client.util.SkinTextures;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import sun.misc.Unsafe;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -85,27 +81,51 @@ public class PlayerEntityMixin implements IPlayerEntityMixins {
                 }
             }
         }
-        @Inject(method="getElytraTexture", at=@At("HEAD"), cancellable = true)
-        void getElytraTextureMixin(CallbackInfoReturnable<Identifier> cir) {
-            boolean hE = false;
-            for (var fur : originalFur$getCurrentModels()) {
-                if (fur == null) {
-                    continue;
-                }
-                if (!fur.hasCustomElytraTexture()) {
-                    continue;
-                }
-                var eT = fur.getElytraTexture();
-                cir.setReturnValue(eT);
-                cir.cancel();
+
+        @Unique
+        private static Unsafe unsafe;
+
+        static{
+            try{
+                final Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
+                unsafeField.setAccessible(true);
+                unsafe = (Unsafe) unsafeField.get(null);
+            }catch(Exception ex){
+                ex.printStackTrace();
             }
+        }
+        @Unique
+        private static void setFinalStatic(Field field, Object value) throws Exception{
+            Object fieldBase = unsafe.staticFieldBase(field);
+            long fieldOffset = unsafe.staticFieldOffset(field);
+
+            unsafe.putObject(fieldBase, fieldOffset, value);
+        }
+        @ModifyReturnValue(method="getSkinTextures", at=@At("RETURN"))
+        private SkinTextures getElytraTextureMixin(SkinTextures original) throws Exception {
+            boolean hE = false;
+            Identifier id = original.elytraTexture();
+            for (var fur : originalFur$getCurrentModels()) {
+                if (fur == null || !fur.hasCustomElytraTexture()) {
+                    continue;
+                }
+                id = fur.getElytraTexture();
+                break;
+            }
+            //        this.texture = identifier;
+            //        this.textureUrl = string;
+            //        this.capeTexture = identifier2;
+            //        this.elytraTexture = identifier3;
+            //        this.model = model;
+            //        this.secure = bl;
+            return new SkinTextures(original.texture(), original.textureUrl(), original.capeTexture(), id, original.model(), original.secure());
         }
     }
     @Override
     public ArrayList<OriginalFurClient.OriginFur> originalFur$getCurrentFurs() {
         var cO = originalFur$currentOrigins();
         ArrayList<OriginalFurClient.OriginFur> furs = new ArrayList<>();
-        if (cO.size() == 0) {return furs;}
+        if (cO.isEmpty()) {return furs;}
         for (var origin : cO){
             try {
                 Identifier id = origin.getIdentifier();

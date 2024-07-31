@@ -169,7 +169,6 @@ public class PlayerEntityRendererMixin {
                 for (var layer : OriginLayers.getLayers()) {
                     var origin = c.getOrigin(layer);
                     if (origin == null) {return;}
-                    MinecraftClient.getInstance().getProfiler().push("originalfurs:" + origin.getIdentifier().getPath());
                     Identifier id = origin.getIdentifier();
                     for (var opt : ((IPlayerEntityMixins)abstractClientPlayerEntity).originalFur$getCurrentFurs()) {
                         OriginFurModel m_Model = (OriginFurModel) opt.getGeoModel();
@@ -222,7 +221,6 @@ public class PlayerEntityRendererMixin {
                     if (origin == null) {
                         return;
                     }
-                    MinecraftClient.getInstance().getProfiler().push("originalfurs:" + origin.getIdentifier().getPath());
                     Identifier id = origin.getIdentifier();
                     for (var opt : ((IPlayerEntityMixins) aCPE).originalFur$getCurrentFurs()) {
                         var model = (ModelRootAccessor) (PlayerEntityModel<?>) this.getModel();

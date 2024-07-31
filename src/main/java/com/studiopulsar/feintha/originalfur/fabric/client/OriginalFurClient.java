@@ -10,8 +10,7 @@ import com.studiopulsar.feintha.originalfur.fabric.OriginalFur;
 import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationFactory;
 import io.github.apace100.origins.origin.Origin;
 import io.github.apace100.origins.origin.OriginRegistry;
-import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.renderer.GeoObjectRenderer;
+import mod.azure.azurelib.common.api.client.renderer.GeoObjectRenderer;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
@@ -81,7 +80,7 @@ public class OriginalFurClient implements ClientModInitializer {
             if (b == null) {return;}
             if (buffer == null) {buffer = bufferSource.getBuffer(renderType);}
             var cubes = b.getCubes();
-            int packedOverlay = this.getPackedOverlay(animatable, 0.0F);
+            int packedOverlay = this.getPackedOverlay(animatable, 0.0F, MinecraftClient.getInstance().getTickDelta());
             for (var child_bones : b.getChildBones()) {
                 cubes.addAll(child_bones.getCubes());
             }

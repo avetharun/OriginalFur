@@ -37,11 +37,12 @@ dependencies {
 //    modImplementation "org.quiltmc:qsl:${project.qsl_version}+${project.minecraft_version}"
 //    modImplementation "org.quiltmc.quilted-fabric-api:quilted-fabric-api:${project.quilted_fabric_api_version}-${project.minecraft_version}"
 
-    modCompileOnly "maven.modrinth:origins:OdNHB7Bh"
-    modCompileOnly "maven.modrinth:azurelib:D0bLIbTK"
+    modCompileOnly "maven.modrinth:origins:1.13.0-alpha.4+mc.1.20.4"
+    modCompileOnly "maven.modrinth:azurelib:2.1.17"
     modCompileOnly "maven.modrinth:cardinal-components-api:HykM2Qyv"
     modCompileOnly(files(
-            "libs/Apoli-1.20.1-2.9.0.jar"
+            "libs/Apoli-1.20.1-2.9.0.jar",
+            "libs/Calio-1.14.0-alpha.2+mc.1.20.4.jar"
     ))
     modCompileOnly "maven.modrinth:iris:URWeWMAt"
     modCompileOnly "maven.modrinth:extra-origins:spXxXXgx"

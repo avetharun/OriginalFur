@@ -1,6 +1,7 @@
 package com.studiopulsar.feintha.originalfur.fabric.mixin;
 
 import com.google.gson.JsonParser;
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.studiopulsar.feintha.originalfur.fabric.OriginEvents;
 import com.studiopulsar.feintha.originalfur.fabric.client.OriginalFurClient;
 import io.github.apace100.calio.data.SerializableData;
@@ -23,41 +24,20 @@ import java.io.IOException;
 @Mixin(OriginRegistry.class)
 public class OriginsRegistryMixin {
 
-    @Mixin(ModPacketsS2C.class)
+    @Mixin(value = ModPacketsS2C.class, remap = false)
     public static class OriginListMixin$ORIF{
-        @Inject(locals= LocalCapture.CAPTURE_FAILHARD,
-                method="lambda$receiveOriginList$4", at=@At(value="INVOKE", target = "Lio/github/apace100/origins/origin/OriginRegistry;register(Lnet/minecraft/util/Identifier;Lio/github/apace100/origins/origin/Origin;)Lio/github/apace100/origins/origin/Origin;", shift = At.Shift.AFTER))
-        private static void onRecievedOriginsMixin(Identifier[] ids, SerializableData.Instance[] origins, CallbackInfo ci, int i) throws IOException {
+        @ModifyReturnValue(method="lambda$receiveOriginList$2", at=@At(value="RETURN"))
+        private static Origin onRecievedOriginsDefineMissingMixin(Origin original) throws IOException {
             var manager = MinecraftClient.getInstance().getResourceManager();
             String path = "furs";
-            Identifier id = new Identifier(ids[i].getNamespace(), ids[i].getPath());
-            id = new Identifier(id.getNamespace(), id.getPath().replace('/', '.').replace('\\', '.'));
-            if (!ids[i].getNamespace().contentEquals("origins")) {
-                var id_tmp = id;
-                id = ids[i];
-                if (!OriginalFurClient.FUR_RESOURCES.containsKey(id)) {
-                    id = id_tmp;
-                }
-            }
-            System.out.println(id);
+            Identifier id = original.getIdentifier();
             var fur = OriginalFurClient.FUR_RESOURCES.getOrDefault(id, null);
             if (fur == null) {
                 OriginalFurClient.FUR_REGISTRY.put(id, new OriginalFurClient.OriginFur(JsonParser.parseString("{}").getAsJsonObject()));
             } else {
                 OriginalFurClient.FUR_REGISTRY.put(id, new  OriginalFurClient.OriginFur(JsonParser.parseString(new String(fur.getInputStream().readAllBytes())).getAsJsonObject()));
             }
-        }
-        @Inject(method="lambda$receiveOriginList$4", at=@At(value="HEAD"))
-        private static void onRecievedOriginsDefineMissingMixin(Identifier[] ids, SerializableData.Instance[] origins, CallbackInfo ci) throws IOException {
-            var manager = MinecraftClient.getInstance().getResourceManager();
-            String path = "furs";
-            Identifier id = new Identifier("origins", "empty");
-            var fur = OriginalFurClient.FUR_RESOURCES.getOrDefault(id, null);
-            if (fur == null) {
-                OriginalFurClient.FUR_REGISTRY.put(id, new OriginalFurClient.OriginFur(JsonParser.parseString("{}").getAsJsonObject()));
-            } else {
-                OriginalFurClient.FUR_REGISTRY.put(id, new  OriginalFurClient.OriginFur(JsonParser.parseString(new String(fur.getInputStream().readAllBytes())).getAsJsonObject()));
-            }
+            return original;
         }
     }
     @Inject(method="register(Lnet/minecraft/util/Identifier;Lio/github/apace100/origins/origin/Origin;)Lio/github/apace100/origins/origin/Origin;", at=@At("RETURN"))
