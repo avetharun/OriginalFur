@@ -1,9 +1,0 @@
-{
-  "loading_priority": 10,
-  "powers": [
-    "origins:elytra"
-  ],
-  "icon": "minecraft:elytra",
-  "order": 3,
-  "impact": 1
-}
