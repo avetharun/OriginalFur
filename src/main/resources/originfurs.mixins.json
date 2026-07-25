@@ -4,8 +4,11 @@
   "package": "dev.feintha.originfurs.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "OriginComponentMixin"
   ],
   "client": [
+    "ClientPlayerMixin",
+    "PlayerRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

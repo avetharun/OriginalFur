@@ -1,0 +1,7 @@
+{
+  "model": "origins:geo/avian.geo.json",
+  "texture": "origins:textures/avian/avian.png",
+  "animation": "origins:animations/avian.animation.json",
+  "elytraTexture": "origins:textures/avian/avian_elytra.png",
+  "overlay": "origins:textures/avian/avian_skin.png"
+}

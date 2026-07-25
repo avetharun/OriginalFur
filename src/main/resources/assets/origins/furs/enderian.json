@@ -1,0 +1,9 @@
+{
+  "model": "origins:geo/enderian.geo.json",
+  "texture": "origins:textures/enderian.png",
+  "overlay": "origins:textures/enderian_skin.png",
+  "rendering_offsets": {
+    "left": [0,0,-0.3],
+    "right": [0,0,-0.3]
+  }
+}

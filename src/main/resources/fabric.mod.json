@@ -11,10 +11,10 @@
   "environment": "*",
   "entrypoints": {
     "client": [
-      "dev.feintha.originfurs.client.OrifReClient"
+      "dev.feintha.originfurs.client.OriginFursClient"
     ],
     "main": [
-      "dev.feintha.originfurs.OrifRe"
+      "dev.feintha.originfurs.OriginFurs"
     ]
   },
   "mixins": [
