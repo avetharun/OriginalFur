@@ -114,3 +114,9 @@ Example: "bipedLeftArm" -> "leftFrill_thin_only_chestplate_hides" will hide the 
 - "\*mod_hides*\*)\*" -> Only shows when a specific mod is missing (ie Mekanism: "mod_hides(mekanism)")
 
 - "\*mod_shows(\*)\*" -> Only shows when a specific mod is present (ie Mekanism: "mod_shows(mekanism)")
+
+
+Hiding bones (by default)
+----
+
+The visibility icon in Blockbench won't change visibility of the bone in-game, so to hide a bone by default, start the name of the bone with "start_hidden"
