@@ -14,13 +14,22 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import software.bernie.geckolib.animatable.GeoEntity;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animatable.instance.SingletonAnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.Animation;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.RawAnimation;
+import software.bernie.geckolib.core.object.PlayState;
 
 @Mixin(PlayerEntity.class)
 public class ClientPlayerMixin {
+
     @Inject(method="<init>", at=@At("TAIL"))
     void initMixin(CallbackInfo ci, @Local(argsOnly = true, name = "world") World world) {
         if (world.isClient()) {
-            var self = ((PlayerEntity)(Object)this);
         }
     }
+
 }

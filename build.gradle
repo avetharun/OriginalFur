@@ -18,6 +18,7 @@ repositories {
     // See https://docs.gradle.org/current/userguide/declaring_repositories.html
     // for more information about repositories.
 
+    mavenCentral()
     exclusiveContent {
         forRepository {
             maven {
@@ -35,6 +36,10 @@ repositories {
         name = "Ladysnake Mods"
         url = 'https://maven.ladysnake.org/releases'
     }
+    maven { url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/' }
+    maven {
+        url "https://maven.cloudsmith.io/geckolib3/geckolib/"
+    }
 }
 
 dependencies {
@@ -45,13 +50,14 @@ dependencies {
 
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     modImplementation "maven.modrinth:origins:${project.origin_version}"
-    modImplementation "maven.modrinth:azurelib:${project.azurelib_version}"
+    modImplementation "maven.modrinth:geckolib:${project.geckolib_version}"
     modCompileOnly "dev.onyxstudios.cardinal-components-api:cardinal-components-base:${project.cca_version}"
     modCompileOnly "dev.onyxstudios.cardinal-components-api:cardinal-components-entity:${project.cca_version}"
     modImplementation files(
             "lib/Apoli-${project.apoli_version}.jar",
             "lib/Calio-${project.calio_version}.jar",
     )
+    implementation 'com.eliotlash.mclib:mclib:20'
 }
 
 processResources {

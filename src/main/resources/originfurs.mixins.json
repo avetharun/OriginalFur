@@ -8,6 +8,8 @@
   ],
   "client": [
     "ClientPlayerMixin",
+    "ItemInHandMixin",
+    "ModelPartMixin",
     "PlayerRendererMixin"
   ],
   "injectors": {
