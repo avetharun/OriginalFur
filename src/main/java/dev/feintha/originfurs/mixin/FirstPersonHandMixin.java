@@ -40,6 +40,7 @@ public class FirstPersonHandMixin {
                 var model = OriginFursClient.CACHED_MODELS.getOrDefault(origin.getIdentifier(), null);
                 if (model != null) {
                     final String boneName = left ? "bipedLeftArm" : "bipedRightArm";
+                    model.getBakedModel(model.getModelResource(model));
                     model.getBone(boneName).ifPresent(b -> {
                         if (b == null) return;
                         model.resetBone(Optional.of(b));
@@ -53,7 +54,6 @@ public class FirstPersonHandMixin {
                         model.invertRotForPart(boneName, false, true, true);
                         model.translatePositionForBone(boneName, new Vec3d(5 * (left ? 1 : -1), 10, 0));
                         model.updateAnimatedTextureFrame(model);
-                        model.getBakedModel(model.getModelResource(model));
                         matrices.multiply(new Quaternionf().rotateX(180 * MathHelper.RADIANS_PER_DEGREE));
                         matrices.translate(0,-2,0);
                         model.renderRecursively(matrices, model, b, rl_main, vertexConsumers, vertexConsumers.getBuffer(rl_main), false, 0, light, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
