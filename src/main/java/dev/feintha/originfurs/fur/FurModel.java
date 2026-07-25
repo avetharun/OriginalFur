@@ -133,7 +133,6 @@ public class FurModel extends GeoModel<FurModel> implements GeoRenderer<FurModel
     void mapHiddenBones(Collection<? extends GeoBone> bones) {
         bones.forEach(bone -> {
             var b =  bone.getName().startsWith("start_hidden");
-            System.out.println(bone.getName() + "  " + b);
             defaultHiddenMap.put(bone,b);
             mapHiddenBones(bone.getChildBones());
         });
@@ -158,48 +157,46 @@ public class FurModel extends GeoModel<FurModel> implements GeoRenderer<FurModel
     public void preprocess(Collection<? extends CoreGeoBone> coreGeoBoneList, AbstractClientPlayerEntity player, PlayerEntityModel<AbstractClientPlayerEntity> model, boolean hasElytra) {
         for (CoreGeoBone coreGeoBone : coreGeoBoneList) {
             preprocess(coreGeoBone.getChildBones(), player, model, hasElytra);
-//            System.out.println(defaultHiddenMap.get(coreGeoBone));
-
             coreGeoBone.setHidden(defaultHiddenMap.get((GeoBone)coreGeoBone));
             if (coreGeoBone.getName().contains("mod_hides(") || coreGeoBone.getName().contains("mod_shows(")) {
                 for (var modid : FabricLoader.getInstance().getAllMods()) {
                     var id = modid.getMetadata().getId();
                     if (coreGeoBone.getName().contains("mod_hides(" + id + ")")) {
                         coreGeoBone.setHidden(true);
-                        return;
+                        continue;
                     }
                     if (coreGeoBone.getName().contains("mod_shows(" + id + ")")) {
                         coreGeoBone.setHidden(false);
                     }
                 }
             }
-            if (coreGeoBone.isHidden()) {return;}
-            coreGeoBone.setHidden(coreGeoBone.getName().endsWith("player_visible") && player.isInvisible());
-            if (coreGeoBone.isHidden()) {return;}
-            coreGeoBone.setHidden(coreGeoBone.getName().endsWith("player_invisible") && !player.isInvisible());
-            if (coreGeoBone.isHidden()) {return;}
-            coreGeoBone.setHidden(coreGeoBone.getName().endsWith("thin_only") && !model.thinArms);
-            if (coreGeoBone.isHidden()) {return;}
-            coreGeoBone.setHidden(coreGeoBone.getName().endsWith("wide_only") && model.thinArms);
-            if (coreGeoBone.isHidden()) {return;}
+            if (coreGeoBone.isHidden()) {
+                coreGeoBone.setHidden(coreGeoBone.getName().contains("helmet_shows") && player.getEquippedStack(EquipmentSlot.HEAD).isEmpty());
+                coreGeoBone.setHidden(coreGeoBone.getName().contains("chestplate_shows") && player.getEquippedStack(EquipmentSlot.CHEST).isEmpty());
+                coreGeoBone.setHidden(coreGeoBone.getName().contains("leggings_shows") && player.getEquippedStack(EquipmentSlot.LEGS).isEmpty());
+                coreGeoBone.setHidden(coreGeoBone.getName().contains("boots_shows") && player.getEquippedStack(EquipmentSlot.FEET).isEmpty());
+                coreGeoBone.setHidden(coreGeoBone.getName().contains("thin_shows") && model.thinArms);
+                coreGeoBone.setHidden(coreGeoBone.getName().contains("wide_shows") && !model.thinArms);
+            }
+            if (coreGeoBone.isHidden()) {continue;}
+            coreGeoBone.setHidden(coreGeoBone.getName().contains("player_visible") && player.isInvisible());
+            if (coreGeoBone.isHidden()) {continue;}
+            coreGeoBone.setHidden(coreGeoBone.getName().contains("player_invisible") && !player.isInvisible());
+            if (coreGeoBone.isHidden()) {continue;}
+            coreGeoBone.setHidden(coreGeoBone.getName().contains("thin_only") && !model.thinArms);
+            if (coreGeoBone.isHidden()) {continue;}
+            coreGeoBone.setHidden(coreGeoBone.getName().contains("wide_only") && model.thinArms);
+            if (coreGeoBone.isHidden()) {continue;}
             coreGeoBone.setHidden(coreGeoBone.getName().contains("elytra_hides") && hasElytra || player.getEquippedStack(EquipmentSlot.CHEST).isOf(Items.ELYTRA));
-            if (coreGeoBone.isHidden()) {return;}
+            if (coreGeoBone.isHidden()) {continue;}
             coreGeoBone.setHidden(coreGeoBone.getName().contains("helmet_hides") && !player.getEquippedStack(EquipmentSlot.HEAD).isEmpty());
-            if (coreGeoBone.isHidden()) {return;}
+            if (coreGeoBone.isHidden()) {continue;}
             coreGeoBone.setHidden(coreGeoBone.getName().contains("chestplate_hides") && !player.getEquippedStack(EquipmentSlot.CHEST).isEmpty());
-            if (coreGeoBone.isHidden()) {return;}
+            if (coreGeoBone.isHidden()) {continue;}
             coreGeoBone.setHidden(coreGeoBone.getName().contains("leggings_hides") && !player.getEquippedStack(EquipmentSlot.LEGS).isEmpty());
-            if (coreGeoBone.isHidden()) {return;}
+            if (coreGeoBone.isHidden()) {continue;}
             coreGeoBone.setHidden(coreGeoBone.getName().contains("boots_hides") && !player.getEquippedStack(EquipmentSlot.FEET).isEmpty());
-            if (coreGeoBone.isHidden()) {return;}
-            coreGeoBone.setHidden(coreGeoBone.getName().contains("helmet_shows") && player.getEquippedStack(EquipmentSlot.HEAD).isEmpty());
-            if (coreGeoBone.isHidden()) {return;}
-            coreGeoBone.setHidden(coreGeoBone.getName().contains("chestplate_shows") && player.getEquippedStack(EquipmentSlot.CHEST).isEmpty());
-            if (coreGeoBone.isHidden()) {return;}
-            coreGeoBone.setHidden(coreGeoBone.getName().contains("leggings_shows") && player.getEquippedStack(EquipmentSlot.LEGS).isEmpty());
-            if (coreGeoBone.isHidden()) {return;}
-            coreGeoBone.setHidden(coreGeoBone.getName().contains("boots_shows") && player.getEquippedStack(EquipmentSlot.FEET).isEmpty());
-            if (coreGeoBone.isHidden()) {return;}
+            if (coreGeoBone.isHidden()) {continue;}
         }
     }
     public void preprocess(AbstractClientPlayerEntity player, PlayerEntityModel<AbstractClientPlayerEntity> model, boolean hasElytra) {

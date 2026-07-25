@@ -16,8 +16,4 @@ public class OriginComponentMixin {
     @Final
     private PlayerEntity player;
 
-    @Inject(method = "sync", at = @At("TAIL"))
-    void syncMixin(CallbackInfo ci) {
-        System.out.println(this.player);
-    }
 }

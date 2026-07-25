@@ -11,6 +11,7 @@
     "FirstPersonHandMixin",
     "ItemInHandMixin",
     "ModelPartMixin",
+    "OriginPickScreenMixin",
     "PlayerRendererMixin"
   ],
   "injectors": {

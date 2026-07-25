@@ -38,7 +38,6 @@ public class OriginFursClient implements ClientModInitializer {
                 var resources = manager.findResources("furs", identifier -> identifier.getPath().endsWith(".json"));
                 resources.forEach((identifier, resources1) -> {
                     Identifier origin_id = Identifier.of(identifier.getNamespace(), identifier.getPath().substring(0, identifier.getPath().lastIndexOf(".")).substring(5));
-                    System.out.println(origin_id);
                     try {
                         var f = FurDef.CODEC.decode(JsonOps.INSTANCE, JsonParser.parseReader(resources1.getReader())).result().orElseThrow().getFirst();
                         CACHED_FURS.put(origin_id, f);
@@ -48,7 +47,6 @@ public class OriginFursClient implements ClientModInitializer {
                         } else {
                             CACHED_MODELS.put(origin_id, null);
                         }
-                        System.out.println(f);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
