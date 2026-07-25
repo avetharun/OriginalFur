@@ -5,28 +5,10 @@ Origin Fur - Origin Extension
 Adding custom models
 ------
 
-Custom model path: `assets/some_namespace/furs/origin_name.json`
-
-Optionally, if you want a specific model to not override origins with the same name (conflicting names, eg if Origin pack opa uses a name called "phantom" and so does Origin Pack originb, you can do opa.phantom and originb.phantom ) you can append your origin's namespace, as follows:
-
-`assets/some_namespace/furs/namespace.origin_name.json`
-
-
-Using Origins Classes, if you create a custom class, you can also create a fur with the same format. 
-
-In code, this is done using origins-classes.class.json as the filename.
-As with the rest of the files, you can remove the namespace, but it's better to keep it there for redundancy.
-
-If your origin is in a subfolder of origins, for example the below image, you NEED to use a namespace! Subfolders work as namespaces, so roiraces.impact1.elf.json would be used for the below image. Removing the namespace (roiraces in this instance) will most likely not work.
-
-.. image:: https://user-images.githubusercontent.com/34732532/267094238-b3b796dc-29ac-4c52-9bfb-d304c2326b13.png
-  :width: 255
-  :alt: Alternative text
-
+Custom model path: `assets/origin_namespace/furs/origin_name.json`
 When creating a new model, make sure if cubes are zero-width (flat on any axis) ONE of the faces is fully transparent. 
 This is because translucency is supported, and can cause clipping if this change isn't made.
 
-Note: Using the keyword `orif-defaults` for namespaces for a new fur will NOT override existing ones!
 Full json file example
 ::
   {
@@ -78,7 +60,20 @@ Description of each option in the fur json file:
 
 - rendering_offsets : Offsets for specific rendering parts. See below for description
 
+  - priority : Order of which offset will take priority. Highest is picked (Default: -32767)
+
   - left : Left arm's item rendering offset
 
   - right : Right arm's item rendering offset
-  
+
+  - elytra : Offset to render the entire elytra from
+
+  - cape : Offset to render the cape from
+
+  - left_elytra : Offset to render the left elytra wing from
+
+  - right_elytra : Offset to render the right elytra wing from
+
+  - first_person_left : Offset to move the left hand in first person by
+
+  - first_person_right : Offset to move the right hand in first person by
