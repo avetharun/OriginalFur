@@ -4,6 +4,8 @@
   "overlay": "origins:textures/enderian_skin.png",
   "rendering_offsets": {
     "left": [0,0,-0.3],
-    "right": [0,0,-0.3]
+    "right": [0,0,-0.3],
+    "first_person_left": [0,-4,0],
+    "first_person_right": [0,-4,0]
   }
 }

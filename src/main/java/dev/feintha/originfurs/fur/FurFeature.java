@@ -2,6 +2,7 @@ package dev.feintha.originfurs.fur;
 
 import dev.feintha.originfurs.client.OriginFursClient;
 import io.github.apace100.origins.registry.ModComponents;
+import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.feature.FeatureRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRendererContext;
@@ -25,7 +26,7 @@ public class FurFeature <T extends LivingEntity, M extends BipedEntityModel<T>, 
         ModComponents.ORIGIN.get(entity).getOrigins().values().forEach(origin -> {
             var model = OriginFursClient.CACHED_MODELS.getOrDefault(origin.getIdentifier(), null);
             if (model != null) {
-                model.render((PlayerEntityModel<?>)this.getContextModel(), (PlayerEntity) entity, matrices, vertexConsumers, headYaw, tickDelta, light);
+                model.render((PlayerEntityModel<AbstractClientPlayerEntity>)this.getContextModel(), (AbstractClientPlayerEntity) entity, matrices, vertexConsumers, headYaw, tickDelta, light);
             }
         });
     }

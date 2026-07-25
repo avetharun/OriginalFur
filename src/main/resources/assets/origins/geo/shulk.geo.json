@@ -246,34 +246,16 @@
 								"up": {"uv": [16, 21], "uv_size": [4, 4]},
 								"down": {"uv": [12, 25], "uv_size": [4, -4]}
 							}
-						},
-						{
-							"origin": [-4, 24, 2],
-							"size": [-3, -7, -4],
-							"uv": {
-								"north": {"uv": [52, 27], "uv_size": [4, -7]},
-								"east": {"uv": [48, 27], "uv_size": [4, -7]},
-								"south": {"uv": [44, 27], "uv_size": [4, -7]},
-								"west": {"uv": [40, 27], "uv_size": [4, -7]},
-								"up": {"uv": [52, 20], "uv_size": [-4, -4]},
-								"down": {"uv": [48, 16], "uv_size": [-4, 4]}
-							}
 						}
 					]
 				},
 				{
 					"name": "bipedRightLeg",
-					"pivot": [-2, 12, 0],
-					"cubes": [
-						{"origin": [-4.25, 5.05, -2], "size": [4, 7, 4], "uv": [26, 7], "mirror": true}
-					]
+					"pivot": [-2, 12, 0]
 				},
 				{
 					"name": "bipedLeftLeg",
-					"pivot": [2.25, 12, 0],
-					"cubes": [
-						{"origin": [0.25, 5.05, -2], "size": [4, 7, 4], "uv": [26, 7]}
-					]
+					"pivot": [2.25, 12, 0]
 				}
 			]
 		}

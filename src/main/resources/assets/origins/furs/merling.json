@@ -2,5 +2,7 @@
   "model": "origins:geo/merling.geo.json",
   "texture": "origins:textures/merling.png",
   "overlay": "origins:textures/merling_skin.png",
-  "overlay_slim": "origins:textures/merling_skin_thin.png"
+  "overlay_slim": "origins:textures/merling_skin_thin.png",
+  "rendering_offsets": {
+  }
 }

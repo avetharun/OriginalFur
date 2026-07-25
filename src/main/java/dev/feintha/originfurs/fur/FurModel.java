@@ -1,36 +1,40 @@
 package dev.feintha.originfurs.fur;
 
+import io.github.apace100.apoli.power.PowerTypeRegistry;
+import io.github.apace100.origins.registry.ModComponents;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
+import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.model.PlayerEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.item.Items;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 import org.joml.Quaternionf;
-import org.joml.Vector3d;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.core.animatable.GeoAnimatable;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.core.animatable.instance.SingletonAnimatableInstanceCache;
+import software.bernie.geckolib.core.animatable.model.CoreGeoBone;
 import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.core.animation.Animation;
 import software.bernie.geckolib.core.animation.AnimationController;
 import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.model.GeoModel;
-import software.bernie.geckolib.renderer.GeoArmorRenderer;
 import software.bernie.geckolib.renderer.GeoRenderer;
-import software.bernie.geckolib.util.RenderUtils;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class FurModel extends GeoModel<FurModel> implements GeoRenderer<FurModel>, GeoAnimatable {
     public static final FurModel EMPTY = null;
@@ -119,8 +123,43 @@ public class FurModel extends GeoModel<FurModel> implements GeoRenderer<FurModel
         bone.setRotY(0);
         bone.setRotZ(0);
     }
-    public void render(PlayerEntityModel<?> playerModel, PlayerEntity player, MatrixStack poseStack, VertexConsumerProvider bufferSource, float yaw, float partialTick, int packedLight) {
+    public void preprocess(Collection<? extends CoreGeoBone> coreGeoBoneList, AbstractClientPlayerEntity player, PlayerEntityModel<AbstractClientPlayerEntity> model, boolean hasElytra) {
+        for (CoreGeoBone coreGeoBone : coreGeoBoneList) {
+            preprocess(coreGeoBone.getChildBones(), player, model, hasElytra);
+            coreGeoBone.setHidden(false);
+            coreGeoBone.setHidden(coreGeoBone.getName().endsWith("thin_only") && !model.thinArms);
+            if (coreGeoBone.isHidden()) {return;}
+            coreGeoBone.setHidden(coreGeoBone.getName().endsWith("wide_only") && model.thinArms);
+            if (coreGeoBone.isHidden()) {return;}
+            coreGeoBone.setHidden(coreGeoBone.getName().contains("elytra_hides") && hasElytra || player.getEquippedStack(EquipmentSlot.CHEST).isOf(Items.ELYTRA));
+            if (coreGeoBone.isHidden()) {return;}
+            coreGeoBone.setHidden(coreGeoBone.getName().contains("helmet_hides") && !player.getEquippedStack(EquipmentSlot.HEAD).isEmpty());
+            if (coreGeoBone.isHidden()) {return;}
+            coreGeoBone.setHidden(coreGeoBone.getName().contains("chestplate_hides") && !player.getEquippedStack(EquipmentSlot.CHEST).isEmpty());
+            if (coreGeoBone.isHidden()) {return;}
+            coreGeoBone.setHidden(coreGeoBone.getName().contains("leggings_hides") && !player.getEquippedStack(EquipmentSlot.LEGS).isEmpty());
+            if (coreGeoBone.isHidden()) {return;}
+            coreGeoBone.setHidden(coreGeoBone.getName().contains("boots_hides") && !player.getEquippedStack(EquipmentSlot.FEET).isEmpty());
+            if (coreGeoBone.isHidden()) {return;}
+            for (var modid : FabricLoader.getInstance().getAllMods()){
+                var id = modid.getMetadata().getId();
+                if (coreGeoBone.getName().contains("mod_hides_"+id)) {
+                    coreGeoBone.setHidden(true);
+                    return;
+                }
+            }
+        }
+    }
+    public void preprocess(AbstractClientPlayerEntity player, PlayerEntityModel<AbstractClientPlayerEntity> model, boolean hasElytra) {
+        preprocess(getAnimationProcessor().getRegisteredBones(), player, model, hasElytra);
+    }
+    public void render(PlayerEntityModel<AbstractClientPlayerEntity> playerModel, AbstractClientPlayerEntity player, MatrixStack poseStack, VertexConsumerProvider bufferSource, float yaw, float partialTick, int packedLight) {
         poseStack.push();
+        AtomicBoolean hasElytra = new AtomicBoolean(false);
+        ModComponents.ORIGIN.get(player).getOrigins().values().forEach(origin -> {
+            hasElytra.set(hasElytra.get() || origin.hasPowerType(PowerTypeRegistry.get(new Identifier("origins:elytra"))));
+        });
+        preprocess(player, playerModel, hasElytra.get());
         setRotationForBone("bipedHead", ((IMojModelPart) (Object) playerModel.head).originfurs$getRotation());
         setRotationForBone("bipedBody", ((IMojModelPart) (Object) playerModel.body).originfurs$getRotation());
         setRotationForBone("bipedLeftArm", ((IMojModelPart) (Object) playerModel.leftArm).originfurs$getRotation());
