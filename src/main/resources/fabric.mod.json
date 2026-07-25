@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "originfurs",
+  "version": "${version}",
+  "name": "originfurs",
+  "description": "A Lag-Friendly and Vanilla-style method of automating bees!",
+  "authors": [],
+  "contact": {},
+  "license": "MIT",
+  "icon": "assets/originfurs/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "dev.feintha.originfurs.client.OrifReClient"
+    ],
+    "main": [
+      "dev.feintha.originfurs.OrifRe"
+    ]
+  },
+  "mixins": [
+    "originfurs.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
