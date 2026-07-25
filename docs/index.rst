@@ -84,18 +84,33 @@ Hiding bones dynamically
 Bones can be hidden dynamically by having the following strings in the bone's name
 
 Example: "bipedLeftArm" -> "leftFrill_thin_only_chestplate_hides" will hide the bone on "wide" (Steve) skin models, and will be hidden if the user wears a chestplate.
+
 - "\*thin_only\*" -> Only shows when using a thin (Alex) skin
+
 - "\*wide_only\*" -> Only shows when using a wide (Steve) skin
+
 - "\*elytra_hides\*" -> Only shows when wearing an elytra, or the origin has an elytra power
+
 - "\*player_visible\*" -> Only shows when the player is visible (ie, when Phantom is visible)
+
 - "\*player_invisible\*" -> Only shows when the player is invisible (ie, when Phantom is invisible)
+
 - "\*helmet_hides\*" -> Only shows when not wearing a helmet
+
 - "\*chestplate_hides\*" -> Only shows when not wearing a chestplate
+
 - "\*leggings_hides\*" -> Only shows when not wearing leggings
+
 - "\*boots_hides\*" -> Only shows when not wearing boots
+
 - "\*helmet_shows\*" -> Only shows when wearing a helmet
+
 - "\*chestplate_shows\*" -> Only shows when wearing a chestplate
+
 - "\*leggings_shows\*" -> Only shows when wearing leggings
+
 - "\*boots_shows\*" -> Only shows when wearing boots
+
 - "\*mod_hides*\*)\*" -> Only shows when a specific mod is missing (ie Mekanism: "mod_hides(mekanism)")
+
 - "\*mod_shows(\*)\*" -> Only shows when a specific mod is present (ie Mekanism: "mod_shows(mekanism)")
