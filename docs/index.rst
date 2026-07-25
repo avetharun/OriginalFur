@@ -97,5 +97,5 @@ Example: "bipedLeftArm" -> "leftFrill_thin_only_chestplate_hides" will hide the 
 - "\*chestplate_shows\*" -> Only shows when wearing a chestplate
 - "\*leggings_shows\*" -> Only shows when wearing leggings
 - "\*boots_shows\*" -> Only shows when wearing boots
-- "\*mod_hides_\*" -> Only shows when a specific mod is missing (ie Mekanism: "mod_hides_mekanism")
-- "\*mod_shows_\*" -> Only shows when a specific mod is present (ie Mekanism: "mod_shows_mekanism")
+- "\*mod_hides*\*)\*" -> Only shows when a specific mod is missing (ie Mekanism: "mod_hides(mekanism)")
+- "\*mod_shows(\*)\*" -> Only shows when a specific mod is present (ie Mekanism: "mod_shows(mekanism)")
