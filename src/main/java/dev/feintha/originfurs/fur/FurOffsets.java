@@ -9,7 +9,7 @@ import java.util.List;
 
 public record FurOffsets(int priority, Vec3d left, Vec3d right, Vec3d elytra, Vec3d cape, Vec3d left_elytra, Vec3d right_elytra, Vec3d first_person_left, Vec3d first_person_right) {
     public static final Codec<FurOffsets> CODEC = RecordCodecBuilder.create(i -> i.group(
-            Codec.INT.optionalFieldOf("priority", 0).forGetter(FurOffsets::priority),
+            Codec.INT.optionalFieldOf("priority", -32767).forGetter(FurOffsets::priority),
             Vec3d.CODEC.optionalFieldOf("left", Vec3d.ZERO).forGetter(FurOffsets::left),
             Vec3d.CODEC.optionalFieldOf("right", Vec3d.ZERO).forGetter(FurOffsets::right),
             Vec3d.CODEC.optionalFieldOf("elytra", Vec3d.ZERO).forGetter(FurOffsets::elytra),

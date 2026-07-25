@@ -17,6 +17,8 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import org.joml.Quaternionf;
+import software.bernie.geckolib.GeckoLibException;
+import software.bernie.geckolib.cache.GeckoLibCache;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.core.animatable.GeoAnimatable;
@@ -33,12 +35,16 @@ import software.bernie.geckolib.renderer.GeoRenderer;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 public class FurModel extends GeoModel<FurModel> implements GeoRenderer<FurModel>, GeoAnimatable {
     public static final FurModel EMPTY = null;
     FurDef furDef;
+    private BakedGeoModel currentModel;
+
     public FurModel(FurDef fur) {
         this.furDef = fur;
     }
@@ -123,10 +129,55 @@ public class FurModel extends GeoModel<FurModel> implements GeoRenderer<FurModel
         bone.setRotY(0);
         bone.setRotZ(0);
     }
+    HashMap<GeoBone, Boolean> defaultHiddenMap = new HashMap<>();
+    void mapHiddenBones(Collection<? extends GeoBone> bones) {
+        bones.forEach(bone -> {
+            var b =  bone.getName().startsWith("start_hidden");
+            System.out.println(bone.getName() + "  " + b);
+            defaultHiddenMap.put(bone,b);
+            mapHiddenBones(bone.getChildBones());
+        });
+    }
+    @Override
+    public BakedGeoModel getBakedModel(Identifier location) {
+
+        BakedGeoModel model = (BakedGeoModel) GeckoLibCache.getBakedModels().get(location);
+        if (model == null) {
+            throw new GeckoLibException(location, "Unable to find model");
+        } else {
+            if (model != this.currentModel) {
+                this.getAnimationProcessor().setActiveModel(model);
+                this.currentModel = model;
+                defaultHiddenMap.clear();
+                mapHiddenBones(model.getBones().stream().map(b->(GeoBone)b).toList());
+            }
+            return this.currentModel;
+        }
+    }
+
     public void preprocess(Collection<? extends CoreGeoBone> coreGeoBoneList, AbstractClientPlayerEntity player, PlayerEntityModel<AbstractClientPlayerEntity> model, boolean hasElytra) {
         for (CoreGeoBone coreGeoBone : coreGeoBoneList) {
             preprocess(coreGeoBone.getChildBones(), player, model, hasElytra);
-            coreGeoBone.setHidden(false);
+//            System.out.println(defaultHiddenMap.get(coreGeoBone));
+
+            coreGeoBone.setHidden(defaultHiddenMap.get((GeoBone)coreGeoBone));
+            if (coreGeoBone.getName().contains("mod_hides(") || coreGeoBone.getName().contains("mod_shows(")) {
+                for (var modid : FabricLoader.getInstance().getAllMods()) {
+                    var id = modid.getMetadata().getId();
+                    if (coreGeoBone.getName().contains("mod_hides(" + id + ")")) {
+                        coreGeoBone.setHidden(true);
+                        return;
+                    }
+                    if (coreGeoBone.getName().contains("mod_shows(" + id + ")")) {
+                        coreGeoBone.setHidden(false);
+                    }
+                }
+            }
+            if (coreGeoBone.isHidden()) {return;}
+            coreGeoBone.setHidden(coreGeoBone.getName().endsWith("player_visible") && player.isInvisible());
+            if (coreGeoBone.isHidden()) {return;}
+            coreGeoBone.setHidden(coreGeoBone.getName().endsWith("player_invisible") && !player.isInvisible());
+            if (coreGeoBone.isHidden()) {return;}
             coreGeoBone.setHidden(coreGeoBone.getName().endsWith("thin_only") && !model.thinArms);
             if (coreGeoBone.isHidden()) {return;}
             coreGeoBone.setHidden(coreGeoBone.getName().endsWith("wide_only") && model.thinArms);
@@ -141,13 +192,14 @@ public class FurModel extends GeoModel<FurModel> implements GeoRenderer<FurModel
             if (coreGeoBone.isHidden()) {return;}
             coreGeoBone.setHidden(coreGeoBone.getName().contains("boots_hides") && !player.getEquippedStack(EquipmentSlot.FEET).isEmpty());
             if (coreGeoBone.isHidden()) {return;}
-            for (var modid : FabricLoader.getInstance().getAllMods()){
-                var id = modid.getMetadata().getId();
-                if (coreGeoBone.getName().contains("mod_hides_"+id)) {
-                    coreGeoBone.setHidden(true);
-                    return;
-                }
-            }
+            coreGeoBone.setHidden(coreGeoBone.getName().contains("helmet_shows") && player.getEquippedStack(EquipmentSlot.HEAD).isEmpty());
+            if (coreGeoBone.isHidden()) {return;}
+            coreGeoBone.setHidden(coreGeoBone.getName().contains("chestplate_shows") && player.getEquippedStack(EquipmentSlot.CHEST).isEmpty());
+            if (coreGeoBone.isHidden()) {return;}
+            coreGeoBone.setHidden(coreGeoBone.getName().contains("leggings_shows") && player.getEquippedStack(EquipmentSlot.LEGS).isEmpty());
+            if (coreGeoBone.isHidden()) {return;}
+            coreGeoBone.setHidden(coreGeoBone.getName().contains("boots_shows") && player.getEquippedStack(EquipmentSlot.FEET).isEmpty());
+            if (coreGeoBone.isHidden()) {return;}
         }
     }
     public void preprocess(AbstractClientPlayerEntity player, PlayerEntityModel<AbstractClientPlayerEntity> model, boolean hasElytra) {
