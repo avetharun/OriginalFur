@@ -25,7 +25,7 @@ public record FurDef(Optional<Identifier> model, Optional<Identifier> texture,
             Identifier.CODEC.optionalFieldOf("overlay").forGetter(FurDef::overlay),
             Identifier.CODEC.optionalFieldOf("emissive_overlay").forGetter(FurDef::emissive_overlay),
             FurPartTypes.SET_CODEC.optionalFieldOf("hidden", EnumSet.noneOf(FurPartTypes.class)).forGetter(FurDef::hiddenParts),
-            FurOffsets.CODEC.optionalFieldOf("offsets", FurOffsets.NONE).forGetter(FurDef::offsets)
+            FurOffsets.CODEC.optionalFieldOf("rendering_offsets", FurOffsets.NONE).forGetter(FurDef::offsets)
     ).apply(i, FurDef::new));
     @Override
     public String toString() {

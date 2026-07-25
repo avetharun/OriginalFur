@@ -5,6 +5,10 @@
   "overlay": "origins:textures/shulk_skin.png",
   "elytraTexture": "origins:textures/shulk/shulk_elytra.png",
   "hidden": [
-    "leftArm","rightArm", "body"
+    "leftArm",
+    "rightArm",
+    "body",
+    "leftSleeve",
+    "rightSleeve"
   ]
 }

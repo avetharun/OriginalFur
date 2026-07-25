@@ -6,7 +6,9 @@ import dev.feintha.originfurs.client.OriginFursClient;
 import dev.feintha.originfurs.fur.FurOffsets;
 import io.github.apace100.origins.registry.ModComponents;
 import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.entity.feature.HeldItemFeatureRenderer;
 import net.minecraft.client.render.entity.feature.PlayerHeldItemFeatureRenderer;
+import net.minecraft.client.render.item.HeldItemRenderer;
 import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
@@ -17,14 +19,14 @@ import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-@Mixin(PlayerHeldItemFeatureRenderer.class)
+@Mixin(HeldItemFeatureRenderer.class)
 public class ItemInHandMixin {
     enum HandSide {
         LEFT,
         RIGHT, NO_OFFSET;
     }
-    @WrapOperation(method="renderItem", at= @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/feature/HeldItemFeatureRenderer;renderItem(Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/render/model/json/ModelTransformationMode;Lnet/minecraft/util/Arm;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V"))
-    void renderItemMixin(PlayerHeldItemFeatureRenderer instance, LivingEntity entity, ItemStack stack, ModelTransformationMode transformationMode, Arm arm, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, Operation<Void> original) {
+    @WrapOperation(method="renderItem", at= @At(value = "INVOKE", target = "Lnet/minecraft/client/render/item/HeldItemRenderer;renderItem(Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/render/model/json/ModelTransformationMode;ZLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V"))
+    void renderItemMixin(HeldItemRenderer instance, LivingEntity entity, ItemStack stack, ModelTransformationMode transformationMode, boolean leftHanded, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, Operation<Void> original) {
         matrices.push();
         HandSide side = HandSide.NO_OFFSET;
         if (transformationMode == ModelTransformationMode.FIRST_PERSON_LEFT_HAND || transformationMode == ModelTransformationMode.THIRD_PERSON_LEFT_HAND) {
@@ -48,7 +50,7 @@ public class ItemInHandMixin {
             };
             matrices.translate(offset.x, offset.y, offset.z);
         }
-        original.call(instance, entity, stack, transformationMode, arm, matrices, vertexConsumers, light);
+        original.call(instance, entity, stack, transformationMode, leftHanded, matrices, vertexConsumers, light);
         matrices.pop();
     }
 }

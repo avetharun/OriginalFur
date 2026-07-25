@@ -120,7 +120,6 @@ public class FurModel extends GeoModel<FurModel> implements GeoRenderer<FurModel
         bone.setRotZ(0);
     }
     public void render(PlayerEntityModel<?> playerModel, PlayerEntity player, MatrixStack poseStack, VertexConsumerProvider bufferSource, float yaw, float partialTick, int packedLight) {
-
         poseStack.push();
         setRotationForBone("bipedHead", ((IMojModelPart) (Object) playerModel.head).originfurs$getRotation());
         setRotationForBone("bipedBody", ((IMojModelPart) (Object) playerModel.body).originfurs$getRotation());
@@ -181,7 +180,7 @@ public class FurModel extends GeoModel<FurModel> implements GeoRenderer<FurModel
             b.setRotZ((float)rot.z * (iZ ? -1 : 1));
         });
     }
-    private void translatePositionForBone(String name, Vec3d vec3d) {
+    public void translatePositionForBone(String name, Vec3d vec3d) {
         getBone(name).ifPresent(b->{
             b.setPosX((float)vec3d.x + b.getPosX());
             b.setPosY((float)vec3d.y + b.getPosY());

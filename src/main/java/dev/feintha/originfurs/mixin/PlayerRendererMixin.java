@@ -1,6 +1,9 @@
 package dev.feintha.originfurs.mixin;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import dev.feintha.originfurs.client.OriginFursClient;
 import dev.feintha.originfurs.fur.FurDef;
 import dev.feintha.originfurs.fur.FurFeature;
@@ -60,11 +63,12 @@ public abstract class PlayerRendererMixin extends LivingEntityRenderer<AbstractC
     Identifier getTextureMixin(Identifier original) {
         return currentOverlayTexture == null ? original : currentOverlayTexture;
     }
-    @Inject(method="render(Lnet/minecraft/client/network/AbstractClientPlayerEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", at= @At(value = "TAIL"))
-    <T extends LivingEntity> void renderMixin(AbstractClientPlayerEntity livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci){
+    @WrapOperation(method="render(Lnet/minecraft/client/network/AbstractClientPlayerEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", at= @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/LivingEntityRenderer;render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V"))
+    <T extends LivingEntity> void renderMixin(PlayerEntityRenderer instance, T livingEntity1, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, Operation<Void> original){
         var self = (PlayerEntityRenderer) (Object) this;
         var entityModel = self.getModel();
         resetModelVisibility(entityModel);
+        AbstractClientPlayerEntity livingEntity = (AbstractClientPlayerEntity) livingEntity1;
         setModelPose(livingEntity);
         EnumSet<FurPartTypes> HIDDEN_PARTS = EnumSet.noneOf(FurPartTypes.class);
         AtomicBoolean fullyHidePlayerModel = new AtomicBoolean(false);
@@ -79,6 +83,10 @@ public abstract class PlayerRendererMixin extends LivingEntityRenderer<AbstractC
         });
         applyHidden(HIDDEN_PARTS, entityModel);
         boolean fullyHidesPlayerModel = fullyHidePlayerModel.get() || HIDDEN_PARTS.size() == FurPartTypes.values().length;
+        if (!fullyHidesPlayerModel) {
+            currentOverlayTexture = null;
+            original.call(instance, livingEntity1, f, g, matrixStack, vertexConsumerProvider, i);
+        }
         for (Pair<Identifier, FurDef> furIdPair : furs) {
             var fur = furIdPair.getRight();
             if (!fullyHidesPlayerModel) {
@@ -92,7 +100,6 @@ public abstract class PlayerRendererMixin extends LivingEntityRenderer<AbstractC
                 }
             }
         }
-        currentOverlayTexture = null;
     }
     @Unique
     void applyHidden(EnumSet<FurPartTypes> parts, PlayerEntityModel<AbstractClientPlayerEntity> model) {
