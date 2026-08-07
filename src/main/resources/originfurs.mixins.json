@@ -7,7 +7,6 @@
     "OriginComponentMixin"
   ],
   "client": [
-    "ClientPlayerMixin",
     "FirstPersonHandMixin",
     "ItemInHandMixin",
     "ModelPartMixin",
